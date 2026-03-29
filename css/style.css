@@ -1039,17 +1039,24 @@ button {
 
   .nav {
     padding: 12px;
-    border-radius: 28px;
+    gap: 12px;
+    border-radius: 22px;
   }
 
-  .brand,
-  .nav-links {
-    width: 100%;
+  .brand {
+    width: auto;
+    align-self: flex-start;
   }
 
   .nav-links a {
     justify-content: center;
     text-align: center;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .hero {
