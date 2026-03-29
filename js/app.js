@@ -27,6 +27,22 @@ const createScrollProgress = () => {
 
 createScrollProgress();
 
+const pressableSelector = [
+  ".brand",
+  ".nav-links a",
+  ".button",
+  ".section-tags span",
+  ".panel-label",
+  ".panel-index",
+  ".article-meta",
+  ".work-meta",
+  ".article-card",
+  ".work-card",
+  ".stack-item",
+  ".theme-toggle",
+  ".article-back",
+].join(", ");
+
 const escapeHtml = (value) => value
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -362,6 +378,53 @@ const createThemeToggle = () => {
   return { button, value };
 };
 
+const attachPressFeedback = (elements) => {
+  if (prefersReducedMotion.matches) {
+    return;
+  }
+
+  elements.forEach((element) => {
+    if (!(element instanceof HTMLElement) || element.dataset.pressFeedbackBound === "true") {
+      return;
+    }
+
+    element.dataset.pressFeedbackBound = "true";
+    element.classList.add("has-press-feedback");
+
+    const clearPressedState = () => {
+      window.setTimeout(() => {
+        element.classList.remove("is-pressed");
+      }, 110);
+    };
+
+    element.addEventListener("pointerdown", (event) => {
+      if (!event.isPrimary) {
+        return;
+      }
+
+      const rect = element.getBoundingClientRect();
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      const line = document.createElement("span");
+
+      element.classList.remove("is-pressed");
+      void element.offsetWidth;
+      element.classList.add("is-pressed");
+
+      line.className = "press-feedback-line";
+      line.style.setProperty("--press-line-y", `${Math.min(Math.max(y, 18), 82)}%`);
+      element.appendChild(line);
+
+      line.addEventListener("animationend", () => {
+        line.remove();
+      }, { once: true });
+    });
+
+    element.addEventListener("pointerup", clearPressedState);
+    element.addEventListener("pointercancel", clearPressedState);
+    element.addEventListener("pointerleave", clearPressedState);
+  });
+};
+
 const getInitialTheme = () => {
   const savedTheme = localStorage.getItem(themeStorageKey);
 
@@ -373,6 +436,8 @@ const getInitialTheme = () => {
 };
 
 const { button: themeToggle, value: themeToggleValue } = createThemeToggle();
+attachPressFeedback(document.querySelectorAll(pressableSelector));
+attachPressFeedback([themeToggle]);
 
 const applyTheme = (theme) => {
   document.documentElement.dataset.theme = theme;
