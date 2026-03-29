@@ -914,6 +914,7 @@ button {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.62);
   box-shadow: 0 12px 30px rgba(20, 45, 92, 0.06);
+  transform: none;
 }
 
 .article-author-avatar {
@@ -951,6 +952,7 @@ button {
   border-radius: var(--radius-xl);
   background: linear-gradient(180deg, rgba(232, 240, 255, 0.96), rgba(255, 255, 255, 0.98));
   box-shadow: 0 24px 60px rgba(20, 45, 92, 0.08);
+  transform: none;
 }
 
 .article-content p {
