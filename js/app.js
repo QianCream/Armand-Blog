@@ -9,6 +9,8 @@ const interactiveElements = document.querySelectorAll(
   ".button, .section-tags span, .panel-index, .panel-label, .article-meta, .work-meta",
 );
 const staggerTargets = document.querySelectorAll(".hero-copy h1, .section-heading h2, .article-title");
+const sections = document.querySelectorAll("main section[id]");
+const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const themeStorageKey = "theme-preference";
@@ -25,8 +27,38 @@ const syncHeaderState = () => {
   header.classList.toggle("is-scrolled", window.scrollY > 12);
 };
 
+const syncActiveSection = () => {
+  if (!sections.length || !navLinks.length) {
+    return;
+  }
+
+  const triggerLine = window.innerHeight * 0.32;
+  let activeId = sections[0].id;
+
+  sections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+
+    if (rect.top <= triggerLine) {
+      activeId = section.id;
+    }
+  });
+
+  navLinks.forEach((link) => {
+    const isActive = link.getAttribute("href") === `#${activeId}` || (activeId === "top" && link.getAttribute("href") === "#top");
+    link.classList.toggle("is-active", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+};
+
 syncHeaderState();
+syncActiveSection();
 window.addEventListener("scroll", syncHeaderState, { passive: true });
+window.addEventListener("scroll", syncActiveSection, { passive: true });
+window.addEventListener("resize", syncActiveSection, { passive: true });
 
 if ("IntersectionObserver" in window) {
   const observer = new IntersectionObserver(
@@ -135,6 +167,15 @@ const applyStaggerText = (node) => {
 staggerTargets.forEach((node) => applyStaggerText(node));
 
 if (!prefersReducedMotion.matches) {
+  const updateSpotlight = (node, event) => {
+    const rect = node.getBoundingClientRect();
+    const px = ((event.clientX - rect.left) / rect.width) * 100;
+    const py = ((event.clientY - rect.top) / rect.height) * 100;
+
+    node.style.setProperty("--spotlight-x", `${px}%`);
+    node.style.setProperty("--spotlight-y", `${py}%`);
+  };
+
   interactiveCards.forEach((card) => {
     card.addEventListener("pointermove", (event) => {
       const rect = card.getBoundingClientRect();
@@ -144,12 +185,33 @@ if (!prefersReducedMotion.matches) {
       const rotateX = (0.5 - py) * 8;
 
       card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+      updateSpotlight(card, event);
     });
 
     card.addEventListener("pointerleave", () => {
       card.style.transform = "";
     });
   });
+
+  const heroCopy = document.querySelector(".hero-copy");
+
+  if (heroCopy) {
+    heroCopy.addEventListener("pointermove", (event) => {
+      const rect = heroCopy.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+      const shiftX = (px - 0.5) * 22;
+      const shiftY = (py - 0.5) * 18;
+
+      heroCopy.style.setProperty("--hero-shift-x", shiftX.toFixed(2));
+      heroCopy.style.setProperty("--hero-shift-y", shiftY.toFixed(2));
+    });
+
+    heroCopy.addEventListener("pointerleave", () => {
+      heroCopy.style.removeProperty("--hero-shift-x");
+      heroCopy.style.removeProperty("--hero-shift-y");
+    });
+  }
 
   interactiveElements.forEach((element) => {
     element.addEventListener("pointermove", (event) => {
