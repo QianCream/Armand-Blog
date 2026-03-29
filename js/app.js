@@ -12,6 +12,7 @@ const staggerTargets = document.querySelectorAll(".hero-copy h1, .section-headin
 const sections = document.querySelectorAll("main section[id]");
 const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const themeStorageKey = "theme-preference";
 
@@ -166,7 +167,7 @@ const applyStaggerText = (node) => {
 
 staggerTargets.forEach((node) => applyStaggerText(node));
 
-if (!prefersReducedMotion.matches) {
+if (!prefersReducedMotion.matches && finePointer.matches) {
   const updateSpotlight = (node, event) => {
     const rect = node.getBoundingClientRect();
     const px = ((event.clientX - rect.left) / rect.width) * 100;
