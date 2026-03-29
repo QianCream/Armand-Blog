@@ -17,6 +17,16 @@ const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 const themeStorageKey = "theme-preference";
 
+const createScrollProgress = () => {
+  const node = document.createElement("div");
+  node.className = "scroll-progress";
+  document.body.appendChild(node);
+
+  return node;
+};
+
+createScrollProgress();
+
 const escapeHtml = (value) => value
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -258,6 +268,18 @@ const syncHeaderState = () => {
   header.classList.toggle("is-scrolled", window.scrollY > 12);
 };
 
+const syncScrollProgress = () => {
+  const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
+
+  if (scrollRange <= 0) {
+    document.documentElement.style.setProperty("--scroll-progress", "0");
+    return;
+  }
+
+  const progress = Math.min(Math.max(window.scrollY / scrollRange, 0), 1);
+  document.documentElement.style.setProperty("--scroll-progress", progress.toFixed(4));
+};
+
 const syncActiveSection = () => {
   if (!sections.length || !navLinks.length) {
     return;
@@ -283,12 +305,19 @@ const syncActiveSection = () => {
       link.removeAttribute("aria-current");
     }
   });
+
+  sections.forEach((section) => {
+    section.classList.toggle("is-active-section", section.id === activeId);
+  });
 };
 
 syncHeaderState();
+syncScrollProgress();
 syncActiveSection();
 window.addEventListener("scroll", syncHeaderState, { passive: true });
+window.addEventListener("scroll", syncScrollProgress, { passive: true });
 window.addEventListener("scroll", syncActiveSection, { passive: true });
+window.addEventListener("resize", syncScrollProgress, { passive: true });
 window.addEventListener("resize", syncActiveSection, { passive: true });
 
 if ("IntersectionObserver" in window) {

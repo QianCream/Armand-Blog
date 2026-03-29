@@ -10,8 +10,10 @@
   "author": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --open --config webpack.config.dev.js",
-    "build": "webpack --config webpack.config.prod.js"
+    "sync:articles": "node scripts/sync-articles.js",
+    "publish:article": "node scripts/publish-article.js",
+    "start": "npm run sync:articles && webpack serve --open --config webpack.config.dev.js",
+    "build": "npm run sync:articles && webpack --config webpack.config.prod.js"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
