@@ -1020,9 +1020,9 @@ button {
 }
 
 .article-math {
-  margin: 1.4em 0 0;
+  margin: 0.9em 0 0;
   overflow-x: auto;
-  padding: 12px 0;
+  padding: 4px 0;
 }
 
 .article-prose .MathJax {
@@ -1031,6 +1031,10 @@ button {
 
 .article-math .MathJax {
   font-size: 1.22rem !important;
+}
+
+.article-math mjx-container[display="true"] {
+  margin: 0.35em 0 !important;
 }
 
 .article-prose .hljs {
