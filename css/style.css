@@ -306,6 +306,7 @@ button {
 
 .hero-copy {
   position: relative;
+  overflow: hidden;
   display: grid;
   align-content: end;
   padding: 34px;
@@ -445,9 +446,18 @@ button {
 }
 
 .hero-lines span {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(47, 107, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
   color: var(--muted);
   font-size: 0.76rem;
-  transition: transform 220ms ease, color 220ms ease;
+  transition: transform 220ms ease, color 220ms ease, border-color 220ms ease, background 220ms ease;
 }
 
 .hero-terminal {
@@ -550,6 +560,7 @@ button {
 }
 
 .profile-frame {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--line-strong);
   border-radius: 20px;
@@ -669,6 +680,16 @@ button {
 
 .panel {
   padding: 26px;
+}
+
+.panel,
+.hero-terminal,
+.article-author,
+.article-content,
+.profile-frame {
+  position: relative;
+  overflow: hidden;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
 }
 
 .intro-panel {
@@ -1303,9 +1324,40 @@ button {
     0 0 24px rgba(121, 169, 255, 0.34);
 }
 
+[data-theme="dark"] .hero-lines span {
+  border-color: rgba(121, 169, 255, 0.12);
+  background: rgba(121, 169, 255, 0.08);
+}
+
 .theme-toggle:hover {
   transform: translateY(-2px);
   border-color: var(--line-strong);
+}
+
+.brand:focus-visible,
+.nav-links a:focus-visible,
+.button:focus-visible,
+.article-card:focus-visible,
+.work-card:focus-visible,
+.article-back:focus-visible,
+.theme-toggle:focus-visible {
+  outline: none;
+  border-color: var(--line-strong);
+  box-shadow:
+    0 0 0 3px rgba(47, 107, 255, 0.14),
+    var(--shadow);
+}
+
+[data-theme="dark"] .brand:focus-visible,
+[data-theme="dark"] .nav-links a:focus-visible,
+[data-theme="dark"] .button:focus-visible,
+[data-theme="dark"] .article-card:focus-visible,
+[data-theme="dark"] .work-card:focus-visible,
+[data-theme="dark"] .article-back:focus-visible,
+[data-theme="dark"] .theme-toggle:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(121, 169, 255, 0.18),
+    var(--shadow);
 }
 
 .theme-toggle-label,
@@ -1680,6 +1732,7 @@ button {
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .brand:hover,
   .nav-links a:hover {
     color: var(--accent);
     border-color: var(--line);
@@ -1698,6 +1751,8 @@ button {
   .hero-lines span:hover {
     color: var(--accent);
     transform: translateY(-2px);
+    border-color: var(--line-strong);
+    background: rgba(47, 107, 255, 0.08);
   }
 
   .hero-terminal:hover::after,
@@ -1705,6 +1760,15 @@ button {
   .stack-item:hover::before,
   .profile-card:hover::before {
     opacity: 1;
+  }
+
+  .panel:hover,
+  .hero-terminal:hover,
+  .article-author:hover,
+  .article-content:hover,
+  .profile-frame:hover {
+    border-color: var(--line-strong);
+    box-shadow: 0 22px 44px rgba(47, 107, 255, 0.12);
   }
 
   .profile-frame:hover {
