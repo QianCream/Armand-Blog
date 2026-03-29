@@ -5,9 +5,16 @@ const themeMeta = document.querySelector('meta[name="theme-color"]');
 const interactiveCards = document.querySelectorAll(
   ".hero-copy, .profile-card, .article-card, .work-card, .stack-item, .article-block, .article-note, .article-stage, .article-quote",
 );
-const interactiveElements = document.querySelectorAll(
-  ".button, .section-tags span, .panel-index, .panel-label, .article-meta, .work-meta",
+const curlSurfaces = document.querySelectorAll(
+  ".hero-copy, .profile-card, .intro-panel, .article-card, .work-card, .stack-item, .hero-terminal",
 );
+const interactiveElements = document.querySelectorAll(
+  ".button, .brand, .nav-links a, .theme-toggle, .section-tags span",
+);
+const tiltTags = document.querySelectorAll(
+  ".hero-lines span, .section-tags span",
+);
+const workCards = document.querySelectorAll(".work-card");
 const staggerTargets = document.querySelectorAll(".hero-copy h1, .section-heading h2, .article-title");
 const sections = document.querySelectorAll("main section[id]");
 const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
@@ -534,6 +541,23 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
     node.style.setProperty("--spotlight-y", `${py}%`);
   };
 
+  const bindControlMotion = (element) => {
+    element.addEventListener("pointermove", (event) => {
+      const rect = element.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+      const moveX = (px - 0.5) * 8;
+      const moveY = (py - 0.5) * 6;
+
+      updateSpotlight(element, event);
+      element.style.transform = `perspective(900px) translate3d(${moveX}px, ${moveY}px, 0) rotateX(${(0.5 - py) * 4}deg) rotateY(${(px - 0.5) * 6}deg)`;
+    });
+
+    element.addEventListener("pointerleave", () => {
+      element.style.transform = "";
+    });
+  };
+
   interactiveCards.forEach((card) => {
     card.addEventListener("pointermove", (event) => {
       updateSpotlight(card, event);
@@ -541,6 +565,30 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
 
     card.addEventListener("pointerleave", () => {
       card.style.transform = "";
+    });
+  });
+
+  curlSurfaces.forEach((surface) => {
+    surface.classList.add("has-curl-surface");
+
+    surface.addEventListener("pointermove", (event) => {
+      const rect = surface.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+      const moveX = (px - 0.5) * 10;
+      const moveY = (py - 0.5) * 8;
+      const rotateY = (px - 0.5) * 12;
+      const rotateX = (0.5 - py) * 10;
+      const skewX = (px - 0.5) * -4;
+      const skewY = (py - 0.5) * 2.5;
+
+      surface.classList.add("is-curling");
+      surface.style.transform = `perspective(1400px) translate3d(${moveX}px, ${moveY}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg) skewX(${skewX}deg) skewY(${skewY}deg) scale(1.01)`;
+    });
+
+    surface.addEventListener("pointerleave", () => {
+      surface.classList.remove("is-curling");
+      surface.style.transform = "";
     });
   });
 
@@ -564,15 +612,24 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
     });
   }
 
-  interactiveElements.forEach((element) => {
+  interactiveElements.forEach((element) => bindControlMotion(element));
+  bindControlMotion(themeToggle);
+
+  tiltTags.forEach((element) => {
+    if (element.closest("#articles, .article-page, .panel-head")) {
+      return;
+    }
+
     element.addEventListener("pointermove", (event) => {
       const rect = element.getBoundingClientRect();
       const px = (event.clientX - rect.left) / rect.width;
       const py = (event.clientY - rect.top) / rect.height;
-      const moveX = (px - 0.5) * 8;
-      const moveY = (py - 0.5) * 6;
+      const moveX = (px - 0.5) * 10;
+      const moveY = (py - 0.5) * 8;
+      const rotateY = (px - 0.5) * 26;
+      const rotateX = (0.5 - py) * 22;
 
-      element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      element.style.transform = `perspective(900px) translate3d(${moveX}px, ${moveY}px, 0) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
     element.addEventListener("pointerleave", () => {
@@ -580,17 +637,27 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
     });
   });
 
-  themeToggle.addEventListener("pointermove", (event) => {
-    const rect = themeToggle.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
-    const moveX = (px - 0.5) * 6;
-    const moveY = (py - 0.5) * 4;
+  workCards.forEach((card) => {
+    const cover = card.querySelector(".work-cover");
 
-    themeToggle.style.transform = `translate(${moveX}px, ${moveY}px)`;
-  });
+    if (!cover) {
+      return;
+    }
 
-  themeToggle.addEventListener("pointerleave", () => {
-    themeToggle.style.transform = "";
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+      const shiftX = (px - 0.5) * -18;
+      const shiftY = (py - 0.5) * -12;
+
+      cover.style.setProperty("--cover-shift-x", `${shiftX.toFixed(2)}px`);
+      cover.style.setProperty("--cover-shift-y", `${shiftY.toFixed(2)}px`);
+    });
+
+    card.addEventListener("pointerleave", () => {
+      cover.style.removeProperty("--cover-shift-x");
+      cover.style.removeProperty("--cover-shift-y");
+    });
   });
 }
