@@ -1294,49 +1294,12 @@ button {
     0 0 0 1px rgba(47, 107, 255, 0.14);
 }
 
-.press-feedback-line {
-  position: absolute;
-  left: -18%;
-  width: 136%;
-  height: 3px;
-  top: var(--press-line-y, 50%);
-  border-radius: 999px;
-  opacity: 0;
-  transform: translateX(-32%) scaleX(0.42);
-  transform-origin: center;
-  background: linear-gradient(90deg, rgba(47, 107, 255, 0), rgba(47, 107, 255, 0.96) 22%, rgba(255, 255, 255, 0.96) 50%, rgba(47, 107, 255, 0.96) 78%, rgba(47, 107, 255, 0));
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 20px rgba(47, 107, 255, 0.34);
-  pointer-events: none;
-  mix-blend-mode: screen;
-  animation: press-line-sweep 460ms cubic-bezier(0.16, 0.84, 0.24, 1) forwards;
-}
-
-.press-feedback-line::after {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 7px;
-  height: 1px;
-  opacity: 0.52;
-  background: linear-gradient(90deg, rgba(47, 107, 255, 0), rgba(47, 107, 255, 0.68), rgba(47, 107, 255, 0));
-}
-
 [data-theme="dark"] .has-press-feedback.is-pressed {
   border-color: rgba(121, 169, 255, 0.36);
   box-shadow:
     inset 0 1px 0 rgba(121, 169, 255, 0.36),
     inset 0 -1px 0 rgba(121, 169, 255, 0.36),
     0 0 0 1px rgba(121, 169, 255, 0.16);
-}
-
-[data-theme="dark"] .press-feedback-line {
-  background: linear-gradient(90deg, rgba(121, 169, 255, 0), rgba(121, 169, 255, 0.98) 22%, rgba(255, 255, 255, 0.98) 50%, rgba(121, 169, 255, 0.98) 78%, rgba(121, 169, 255, 0));
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 0 24px rgba(121, 169, 255, 0.34);
 }
 
 [data-theme="dark"] .brand::before,
@@ -1493,24 +1456,6 @@ button {
   }
   50% {
     transform: scale(1.06) translate3d(0, -6px, 0);
-  }
-}
-
-@keyframes press-line-sweep {
-  0% {
-    opacity: 0;
-    transform: translateX(-38%) scaleX(0.36);
-  }
-  18% {
-    opacity: 1;
-  }
-  58% {
-    opacity: 1;
-    transform: translateX(6%) scaleX(1.18);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(32%) scaleX(1.28);
   }
 }
 
@@ -1878,8 +1823,4 @@ button {
     animation: none;
   }
 
-  .press-feedback-line {
-    animation: none;
-    opacity: 0;
-  }
 }

@@ -384,21 +384,9 @@ const attachPressFeedback = (elements) => {
         return;
       }
 
-      const rect = element.getBoundingClientRect();
-      const y = ((event.clientY - rect.top) / rect.height) * 100;
-      const line = document.createElement("span");
-
       element.classList.remove("is-pressed");
       void element.offsetWidth;
       element.classList.add("is-pressed");
-
-      line.className = "press-feedback-line";
-      line.style.setProperty("--press-line-y", `${Math.min(Math.max(y, 18), 82)}%`);
-      element.appendChild(line);
-
-      line.addEventListener("animationend", () => {
-        line.remove();
-      }, { once: true });
     });
 
     element.addEventListener("pointerup", clearPressedState);
