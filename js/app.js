@@ -5,11 +5,8 @@ const themeMeta = document.querySelector('meta[name="theme-color"]');
 const interactiveCards = document.querySelectorAll(
   ".hero-copy, .profile-card, .article-card, .work-card, .stack-item, .article-block, .article-note, .article-stage, .article-quote",
 );
-const interactiveSurfaces = document.querySelectorAll(
-  ".hero-terminal, .panel, .article-content, .article-author, .profile-frame",
-);
 const interactiveElements = document.querySelectorAll(
-  ".button, .section-tags span, .panel-index, .panel-label, .article-meta, .work-meta, .hero-lines span, .article-date, .article-format",
+  ".button, .section-tags span, .panel-index, .panel-label, .article-meta, .work-meta",
 );
 const staggerTargets = document.querySelectorAll(".hero-copy h1, .section-heading h2, .article-title");
 const sections = document.querySelectorAll("main section[id]");
@@ -32,16 +29,6 @@ const pressableSelector = [
   ".article-card",
   ".work-card",
   ".stack-item",
-  ".hero-copy",
-  ".hero-terminal",
-  ".panel",
-  ".profile-card",
-  ".profile-frame",
-  ".article-author",
-  ".article-content",
-  ".hero-lines span",
-  ".article-date",
-  ".article-format",
   ".theme-toggle",
   ".article-back",
 ].join(", ");
@@ -549,35 +536,11 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
 
   interactiveCards.forEach((card) => {
     card.addEventListener("pointermove", (event) => {
-      const rect = card.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-      const rotateY = (px - 0.5) * 8;
-      const rotateX = (0.5 - py) * 8;
-
-      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
       updateSpotlight(card, event);
     });
 
     card.addEventListener("pointerleave", () => {
       card.style.transform = "";
-    });
-  });
-
-  interactiveSurfaces.forEach((surface) => {
-    surface.addEventListener("pointermove", (event) => {
-      const rect = surface.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-      const rotateY = (px - 0.5) * 4;
-      const rotateX = (0.5 - py) * 4;
-
-      surface.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
-      updateSpotlight(surface, event);
-    });
-
-    surface.addEventListener("pointerleave", () => {
-      surface.style.transform = "";
     });
   });
 
