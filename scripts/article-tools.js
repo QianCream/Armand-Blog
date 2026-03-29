@@ -149,12 +149,17 @@ const renderArticlePage = (article) => `<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(article.title)} | Armand's Blog</title>
   <meta name="description" content="${escapeHtml(article.description)}">
+  <meta name="theme-color" content="#f0f2f5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+  <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
   <script>
     window.MathJax = {
       tex: {
@@ -202,7 +207,7 @@ const renderArticlePage = (article) => `<!doctype html>
 </html>
 `;
 
-const renderArticleCard = (article, index) => `            <a class="article-card reveal" href="articles/${escapeHtml(article.slug)}.html">
+const renderArticleCard = (article, index) => `            <a class="article-card reveal collapse-reveal" href="articles/${escapeHtml(article.slug)}.html">
               <div class="panel-head">
                 <span class="article-meta">${String(index + 1).padStart(2, "0")}</span>
                 <span class="panel-index">A${index + 1}</span>
