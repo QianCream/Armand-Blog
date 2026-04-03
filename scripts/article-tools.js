@@ -207,11 +207,12 @@ const renderArticlePage = (article) => `<!doctype html>
 </html>
 `;
 
-const renderArticleCard = (article, index) => `            <a class="article-card reveal collapse-reveal" href="articles/${escapeHtml(article.slug)}.html">
+const renderArticleCard = (article, index) => `            <a class="article-card article-card-${index === 0 ? "featured" : "stack"} reveal collapse-reveal" href="articles/${escapeHtml(article.slug)}.html">
               <div class="panel-head">
                 <span class="article-meta">${String(index + 1).padStart(2, "0")}</span>
                 <span class="panel-index">A${index + 1}</span>
               </div>
+              <span class="article-card-date">${escapeHtml(article.date || "undated")}</span>
               <h3>${escapeHtml(article.title)}</h3>
               <p>${escapeHtml(article.summary)}</p>
             </a>`;
