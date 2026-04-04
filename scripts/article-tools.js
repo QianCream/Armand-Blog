@@ -61,6 +61,17 @@ const stripMarkdown = (value) => value
   .replace(/\s+/g, " ")
   .trim();
 
+const estimateReadingMinutes = (body) => {
+  const plainText = stripMarkdown(body);
+  const cjkCharacters = (plainText.match(/[\u3400-\u9fff]/g) || []).length;
+  const latinWords = (plainText.match(/[A-Za-z0-9_+-]+/g) || []).length;
+  const readingUnits = cjkCharacters + latinWords;
+
+  return Math.max(1, Math.round(readingUnits / 260));
+};
+
+const countSections = (body) => (body.match(/^#{1,4}\s+/gm) || []).length;
+
 const extractSummary = (body) => {
   const paragraphs = body
     .split(/\n\s*\n/)
@@ -126,6 +137,9 @@ const readMarkdownArticles = () => {
       const description = meta.description || extractSummary(body);
       const summary = meta.summary || description;
       const date = meta.date || "";
+      const format = meta.format || "Markdown";
+      const readMinutes = estimateReadingMinutes(body);
+      const sectionCount = countSections(body);
 
       return {
         slug,
@@ -133,6 +147,9 @@ const readMarkdownArticles = () => {
         description,
         summary,
         date,
+        format,
+        readMinutes,
+        sectionCount,
         author: meta.author || DEFAULT_AUTHOR,
         authorRole: meta.author_role || DEFAULT_AUTHOR_ROLE,
         avatar: meta.avatar || DEFAULT_AVATAR,
@@ -190,7 +207,8 @@ const renderArticlePage = (article) => `<!doctype html>
           </div>
           <div class="article-meta-row">
             <span class="article-date" data-article-date${article.date ? "" : " hidden"}>${escapeHtml(article.date)}</span>
-            <span class="article-format" data-article-format>Markdown</span>
+            <span class="article-format" data-article-format>${escapeHtml(article.format)}</span>
+            <span class="article-reading-time">${article.readMinutes} min read</span>
           </div>
           <h1 class="article-title" data-article-title>${escapeHtml(article.title)}</h1>
         </header>
@@ -207,12 +225,37 @@ const renderArticlePage = (article) => `<!doctype html>
 </html>
 `;
 
+const renderArticleSummary = (articles) => {
+  const latestDate = articles[0]?.date || "undated";
+  const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
+
+  return `          <div class="articles-summary panel reveal">
+            <div class="articles-summary-item">
+              <span class="articles-summary-label">entries</span>
+              <strong>${articles.length}</strong>
+            </div>
+            <div class="articles-summary-item">
+              <span class="articles-summary-label">latest</span>
+              <strong>${escapeHtml(latestDate)}</strong>
+            </div>
+            <div class="articles-summary-item">
+              <span class="articles-summary-label">reading</span>
+              <strong>${totalReadMinutes} min</strong>
+            </div>
+          </div>`;
+};
+
 const renderArticleCard = (article, index) => `            <a class="article-card article-card-${index === 0 ? "featured" : "stack"} reveal collapse-reveal" href="articles/${escapeHtml(article.slug)}.html">
               <div class="panel-head">
                 <span class="article-meta">${String(index + 1).padStart(2, "0")}</span>
                 <span class="panel-index">A${index + 1}</span>
               </div>
               <span class="article-card-date">${escapeHtml(article.date || "undated")}</span>
+              <div class="article-card-stats">
+                <span>${escapeHtml(article.format)}</span>
+                <span>${article.readMinutes} min read</span>
+                <span>${article.sectionCount} sections</span>
+              </div>
               <h3>${escapeHtml(article.title)}</h3>
               <p>${escapeHtml(article.summary)}</p>
             </a>`;
@@ -226,6 +269,7 @@ const syncGeneratedArticles = () => {
   });
 
   const indexHtml = fs.readFileSync(INDEX_PATH, "utf8");
+  const summaryHtml = renderArticleSummary(articles);
   const generatedCards = articles.map(renderArticleCard).join("\n");
 
   if (!indexHtml.includes(GENERATED_START) || !indexHtml.includes(GENERATED_END)) {
@@ -234,7 +278,7 @@ const syncGeneratedArticles = () => {
 
   const updatedIndex = indexHtml.replace(
     new RegExp(`${GENERATED_START}[\\s\\S]*?${GENERATED_END}`),
-    `${GENERATED_START}\n${generatedCards}\n            ${GENERATED_END}`,
+    `${GENERATED_START}\n${summaryHtml}\n${generatedCards}\n            ${GENERATED_END}`,
   );
 
   fs.writeFileSync(INDEX_PATH, updatedIndex, "utf8");

@@ -661,6 +661,42 @@ button {
   padding: 14px;
 }
 
+.github-feed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 16px;
+}
+
+.github-profile-link {
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+}
+
+.github-summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.github-summary-chips span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
 .github-feed-status {
   margin: 0;
   padding: 12px 14px;
@@ -813,6 +849,40 @@ button {
   gap: 14px;
 }
 
+.articles-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.articles-summary-item {
+  display: grid;
+  gap: 8px;
+  min-width: 132px;
+}
+
+.articles-summary-item span,
+.article-card-stats span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.articles-summary-item strong {
+  font-size: 1.2rem;
+  letter-spacing: -0.04em;
+}
+
 .stack-item {
   position: relative;
   padding: 18px 20px;
@@ -927,6 +997,14 @@ button {
   align-self: start;
 }
 
+.article-card-stats {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .article-card h3 {
   grid-column: 2;
   grid-row: 1;
@@ -955,7 +1033,7 @@ button {
 
 .article-card p {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 3;
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.84;
@@ -1177,6 +1255,7 @@ button {
 
 .article-date,
 .article-format,
+.article-reading-time,
 .article-loading {
   display: inline-flex;
   align-items: center;
@@ -1386,6 +1465,14 @@ button {
   background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(184, 208, 255, 0.12), rgba(255, 255, 255, 0));
 }
 
+[data-theme="dark"] .github-summary-chips span,
+[data-theme="dark"] .article-card-stats span,
+[data-theme="dark"] .articles-summary-item span {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(19, 37, 59, 0.86);
+  color: #8fb8ff;
+}
+
 [data-theme="dark"] .article-card-featured {
   background:
     radial-gradient(circle at top right, rgba(121, 169, 255, 0.14), rgba(121, 169, 255, 0) 28%),
@@ -1402,6 +1489,11 @@ button {
 
 [data-theme="dark"] .github-item-copy p {
   color: #b3c5e2;
+}
+
+[data-theme="dark"] .articles-summary-item strong,
+[data-theme="dark"] .github-profile-link {
+  color: #edf4ff;
 }
 
 [data-theme="dark"] .article-author {
@@ -1445,6 +1537,7 @@ button {
 
 [data-theme="dark"] .article-date,
 [data-theme="dark"] .article-format,
+[data-theme="dark"] .article-reading-time,
 [data-theme="dark"] .article-loading {
   border-color: rgba(121, 169, 255, 0.16);
   background: rgba(19, 37, 59, 0.86);
@@ -1944,10 +2037,17 @@ button {
 
   .article-card .panel-head,
   .article-card-date,
+  .article-card-stats,
   .article-card h3,
   .article-card p {
     grid-column: auto;
     grid-row: auto;
+  }
+
+  .github-feed-head {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 6px 6px 14px;
   }
 
   .article-author {

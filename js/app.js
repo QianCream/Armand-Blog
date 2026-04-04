@@ -359,6 +359,10 @@ const loadGithubContributions = async () => {
     return;
   }
 
+  if (githubFeed.querySelector(".github-list")) {
+    return;
+  }
+
   const username = githubFeed.dataset.githubUser;
 
   if (!username) {
@@ -377,13 +381,23 @@ const loadGithubContributions = async () => {
       .map(summarizeGithubEvent)
       .filter(Boolean)
       .slice(0, 4);
+    const repoCount = new Set(items.map((item) => item.repo)).size;
+    const latestType = items[0]?.badge || "activity";
 
     if (!items.length) {
       githubFeed.innerHTML = `<p class="github-feed-status">最近没有读取到公开贡献。</p>`;
       return;
     }
 
-    githubFeed.innerHTML = `<div class="github-list">${items.map((item, index) => renderGithubContribution(item, index)).join("")}</div>`;
+    githubFeed.innerHTML = `<div class="github-feed-head">
+        <a class="github-profile-link" href="https://github.com/${encodeURIComponent(username)}" target="_blank" rel="noreferrer">@${escapeHtml(username)}</a>
+        <div class="github-summary-chips">
+          <span>${items.length} events</span>
+          <span>${repoCount} repos</span>
+          <span>latest ${escapeHtml(latestType)}</span>
+        </div>
+      </div>
+      <div class="github-list">${items.map((item, index) => renderGithubContribution(item, index)).join("")}</div>`;
   } catch (error) {
     githubFeed.innerHTML = `<p class="github-feed-status">GitHub 贡献加载失败。</p>`;
     console.error(error);
@@ -590,6 +604,7 @@ const loadMarkdownArticle = async () => {
   const titleNode = document.querySelector("[data-article-title]");
   const dateNode = document.querySelector("[data-article-date]");
   const formatNode = document.querySelector("[data-article-format]");
+  const readingNode = document.querySelector(".article-reading-time");
   const authorNode = document.querySelector("[data-article-author]");
   const authorRoleNode = document.querySelector("[data-article-author-role]");
   const avatarNode = document.querySelector("[data-article-avatar]");
@@ -620,6 +635,23 @@ const loadMarkdownArticle = async () => {
 
     if (formatNode && meta.format) {
       formatNode.textContent = meta.format;
+    }
+
+    if (readingNode) {
+      const plainText = body
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/\$\$[\s\S]*?\$\$/g, " ")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/!\[([^\]]*)]\(([^)]+)\)/g, "$1")
+        .replace(/\[([^\]]+)]\(([^)]+)\)/g, "$1")
+        .replace(/[#>*_\-\d.]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const cjkCharacters = (plainText.match(/[\u3400-\u9fff]/g) || []).length;
+      const latinWords = (plainText.match(/[A-Za-z0-9_+-]+/g) || []).length;
+      const readMinutes = Math.max(1, Math.round((cjkCharacters + latinWords) / 260));
+
+      readingNode.textContent = `${readMinutes} min read`;
     }
 
     if (authorNode && meta.author) {
