@@ -4,8 +4,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Armand的个人博客</title>
-  <meta name="description" content="Armand 的个人博客。">
+  <title>Armand 的博客 | Aethe、F++、FreeWorld 与技术文章</title>
+  <meta name="description" content="Armand 的个人博客，记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta name="keywords" content="Armand, Aethe, F++, FreeWorld, 技术博客, C++, 图形, 语言设计, 编程语言">
+  <meta name="author" content="Armand">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://armand.dev/">
   <meta name="theme-color" content="#f0f2f5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,10 +18,45 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
-  <meta property="og:title" content="Armand's Blog">
+  <meta property="og:title" content="Armand 的博客 | Aethe、F++、FreeWorld 与技术文章">
+  <meta property="og:description" content="记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta property="og:site_name" content="Armand's Blog">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="img/avatar.jpeg">
+  <meta property="og:url" content="https://armand.dev/">
+  <meta property="og:image" content="https://armand.dev/img/avatar.jpeg">
   <meta property="og:image:alt" content="Armand avatar">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Armand 的博客 | Aethe、F++、FreeWorld 与技术文章">
+  <meta name="twitter:description" content="记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta name="twitter:image" content="https://armand.dev/img/avatar.jpeg">
+  <link rel="alternate" type="application/rss+xml" title="Armand's Blog RSS Feed" href="https://armand.dev/feed.xml">
+  <script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Armand's Blog",
+    "url": "https://armand.dev/",
+    "inLanguage": "zh-CN",
+    "description": "记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。",
+    "author": {
+      "@type": "Person",
+      "name": "Armand",
+      "url": "https://armand.dev/"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Armand",
+    "url": "https://armand.dev/",
+    "image": "https://armand.dev/img/avatar.jpeg",
+    "sameAs": [
+      "https://github.com/QianCream"
+    ]
+  }
+]
+  </script>
 
   <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
   <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
@@ -53,6 +92,27 @@
             <h1>ARMAND</h1>
             <p class="hero-text">路在脚下，行将致远。</p>
 
+            <div class="hero-command-band" aria-label="当前指令">
+              <span class="hero-command-prompt">$</span>
+              <span class="hero-command-text">open --focus articles --topic Aethe --mode build</span>
+              <span class="hero-command-state">online</span>
+            </div>
+
+            <div class="hero-telemetry" aria-label="技术方向">
+              <div class="hero-telemetry-item">
+                <span class="hero-telemetry-label">mode</span>
+                <strong>build / write / ship</strong>
+              </div>
+              <div class="hero-telemetry-item">
+                <span class="hero-telemetry-label">stack</span>
+                <strong>C++, compilers, graphics</strong>
+              </div>
+              <div class="hero-telemetry-item">
+                <span class="hero-telemetry-label">signal</span>
+                <strong>Aethe / F++ / blog</strong>
+              </div>
+            </div>
+
             <div class="hero-actions">
               <a class="button button-primary" href="#articles">read</a>
               <a class="button button-secondary" href="#works">works</a>
@@ -86,6 +146,15 @@
                 <span class="eyebrow">PROFILE</span>
                 <h2>Armand</h2>
                 <p>个人站点</p>
+              </div>
+              <div class="profile-badges" aria-hidden="true">
+                <span>devlog</span>
+                <span>compiler</span>
+                <span>research</span>
+              </div>
+              <div class="profile-status">
+                <span class="profile-status-label">status</span>
+                <strong>writing, refining, shipping</strong>
               </div>
             </article>
           </aside>
@@ -133,6 +202,10 @@
                 <span>5 min read</span>
                 <span>15 sections</span>
               </div>
+              <div class="article-card-command">
+                <span class="article-card-command-prompt">$</span>
+                <span class="article-card-command-text">open ./articles/aethe-2-tutorial.md</span>
+              </div>
               <h3>Aethe 教程</h3>
               <p>从第一个管道开始，快速理解 Aethe 2 的运行方式、变量规则和常用集合操作。</p>
             </a>
@@ -147,6 +220,10 @@
                 <span>6 min read</span>
                 <span>29 sections</span>
               </div>
+              <div class="article-card-command">
+                <span class="article-card-command-prompt">$</span>
+                <span class="article-card-command-text">open ./articles/aethe-2-reference.md</span>
+              </div>
               <h3>Aethe 语言参考</h3>
               <p>面向查询场景梳理 Aethe 2 的核心语法、管道机制、可调用对象和常用内建能力。</p>
             </a>
@@ -160,6 +237,10 @@
                 <span>Markdown</span>
                 <span>15 min read</span>
                 <span>39 sections</span>
+              </div>
+              <div class="article-card-command">
+                <span class="article-card-command-prompt">$</span>
+                <span class="article-card-command-text">open ./articles/perlin-noise-intro.md</span>
               </div>
               <h3>柏林噪声浅论</h3>
               <p>从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。</p>
@@ -194,7 +275,41 @@
               </div>
             </div>
             <div class="github-list">
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/dc4f4ca8c915a1d12ec9b0d85d9191355586f014" target="_blank" rel="noreferrer" style="--github-index:0;">
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/5b67a50fbd70feacb4c36de8534cfcdba9cc462d" target="_blank" rel="noreferrer" style="--github-index:0;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/04 14:26</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">5b67a50</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/a102a07684f9762fb9643d2f5aa19cc4ccdf4e99" target="_blank" rel="noreferrer" style="--github-index:1;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/03 22:25</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">a102a07</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/dc4f4ca8c915a1d12ec9b0d85d9191355586f014" target="_blank" rel="noreferrer" style="--github-index:2;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/03 20:45</span>
@@ -203,14 +318,15 @@
                 <div class="github-item-meta">
                   <span class="github-item-badge">commit</span>
                   <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">dc4f4ca</span>
                 </div>
                 <div class="github-item-copy">
-                  <h3>Add Aethe tutorial and reference articles</h3>
+                  <h3>Push to Armand-Blog</h3>
                   <p>最新提交已同步到 GitHub</p>
                 </div>
               </div>
             </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/f73c550fa50a930dc94e1a6c8a9150d917ce7349" target="_blank" rel="noreferrer" style="--github-index:1;">
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/f73c550fa50a930dc94e1a6c8a9150d917ce7349" target="_blank" rel="noreferrer" style="--github-index:3;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/03 19:42</span>
@@ -219,41 +335,10 @@
                 <div class="github-item-meta">
                   <span class="github-item-badge">commit</span>
                   <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">f73c550</span>
                 </div>
                 <div class="github-item-copy">
-                  <h3>Unify article page favicon metadata</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/e715385aa77f4afb006611ddaf15de51a7f5d186" target="_blank" rel="noreferrer" style="--github-index:2;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">03/29 22:56</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Update page titles and add IDE Git mapping</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/4cc5bde5fc529a4610fa35e2f5bf062d9873aaa6" target="_blank" rel="noreferrer" style="--github-index:3;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">03/29 22:39</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Remove horizontal line animations from navigation and headings</h3>
+                  <h3>Push to Armand-Blog</h3>
                   <p>最新提交已同步到 GitHub</p>
                 </div>
               </div>
@@ -279,7 +364,16 @@
                 <span class="panel-label">node::intro</span>
                 <span class="panel-index">01</span>
               </div>
+              <div class="intro-command">
+                <span class="intro-command-prompt">$</span>
+                <span class="intro-command-text">whoami --focus lang-design --age junior</span>
+              </div>
               <p class="intro-lead">初三学生，喜欢用C艹写硬解析语言。</p>
+              <div class="intro-flags" aria-hidden="true">
+                <span>parser</span>
+                <span>tooling</span>
+                <span>ui</span>
+              </div>
             </article>
 
             <div class="intro-stack reveal reveal-delay collapse-reveal">
@@ -323,7 +417,16 @@
                   <span class="work-meta">01</span>
                   <span class="panel-index">W1</span>
                 </div>
+                <div class="work-card-command">
+                  <span class="work-card-command-prompt">$</span>
+                  <span class="work-card-command-text">git clone QianCream/Aethe</span>
+                </div>
                 <h3>Aethe</h3>
+                <p>一门还在持续推进中的语言实验，重点放在管道式表达和可读的程序结构。</p>
+                <div class="work-card-tags" aria-hidden="true">
+                  <span>compiler</span>
+                  <span>language</span>
+                </div>
               </div>
             </a>
 
@@ -336,7 +439,16 @@
                   <span class="work-meta">02</span>
                   <span class="panel-index">W2</span>
                 </div>
+                <div class="work-card-command">
+                  <span class="work-card-command-prompt">$</span>
+                  <span class="work-card-command-text">git clone QianCream/Fpp</span>
+                </div>
                 <h3>F++</h3>
+                <p>围绕语言与实现继续试错的项目分支，偏向更直接的表达和实验性结构。</p>
+                <div class="work-card-tags" aria-hidden="true">
+                  <span>syntax</span>
+                  <span>experiment</span>
+                </div>
               </div>
             </a>
 
@@ -349,7 +461,16 @@
                   <span class="work-meta">03</span>
                   <span class="panel-index">W3</span>
                 </div>
+                <div class="work-card-command">
+                  <span class="work-card-command-prompt">$</span>
+                  <span class="work-card-command-text">git clone QianCream/FreeWorld</span>
+                </div>
                 <h3>FreeWorld</h3>
+                <p>更偏小型项目和世界观式构想的集合，记录实现过程里的视觉和玩法尝试。</p>
+                <div class="work-card-tags" aria-hidden="true">
+                  <span>gameplay</span>
+                  <span>world</span>
+                </div>
               </div>
             </a>
           </div>
@@ -360,6 +481,11 @@
     <footer class="site-footer">
       <div class="container footer-row">
         <p>© <span id="year"></span> armand.dev</p>
+        <div class="footer-links">
+          <a href="feed.xml">feed.xml</a>
+          <a href="sitemap.xml">sitemap.xml</a>
+          <a href="https://github.com/QianCream" target="_blank" rel="noreferrer">github</a>
+        </div>
       </div>
     </footer>
   </div>

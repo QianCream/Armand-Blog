@@ -269,14 +269,16 @@ const summarizeGithubEvent = (event) => {
   if (event.type === "PushEvent") {
     const commits = event.payload?.commits || [];
     const latestCommit = commits[commits.length - 1];
-    const sha = latestCommit?.sha || "";
+    const sha = latestCommit?.sha || event.payload?.head || "";
+    const commitCount = event.payload?.size || commits.length || 0;
 
     return {
       badge: "commit",
       repo,
       time: createdAt,
-      title: latestCommit?.message || `Pushed ${commits.length} commit(s)`,
-      detail: commits.length > 1 ? `本次推送包含 ${commits.length} 个提交` : "最新提交已同步到 GitHub",
+      title: latestCommit?.message || `Push to ${repo.split("/").pop()}`,
+      detail: commitCount > 1 ? `本次推送包含 ${commitCount} 个提交` : "最新提交已同步到 GitHub",
+      code: sha ? sha.slice(0, 7) : "HEAD",
       url: sha ? `https://github.com/${repo}/commit/${sha}` : `https://github.com/${repo}`,
     };
   }
@@ -290,6 +292,7 @@ const summarizeGithubEvent = (event) => {
       time: createdAt,
       title: pullRequest?.title || "Updated pull request",
       detail: `PR ${event.payload?.action || "updated"}`,
+      code: pullRequest?.number ? `#${pullRequest.number}` : "PR",
       url: pullRequest?.html_url || `https://github.com/${repo}/pulls`,
     };
   }
@@ -303,6 +306,7 @@ const summarizeGithubEvent = (event) => {
       time: createdAt,
       title: issue?.title || "Updated issue",
       detail: `Issue ${event.payload?.action || "updated"}`,
+      code: issue?.number ? `#${issue.number}` : "ISSUE",
       url: issue?.html_url || `https://github.com/${repo}/issues`,
     };
   }
@@ -317,6 +321,7 @@ const summarizeGithubEvent = (event) => {
       time: createdAt,
       title: `Created ${refType}: ${refName}`,
       detail: "新的 GitHub 实体已创建",
+      code: String(refType).toUpperCase(),
       url: `https://github.com/${repo}`,
     };
   }
@@ -330,6 +335,7 @@ const summarizeGithubEvent = (event) => {
       time: createdAt,
       title: release?.name || release?.tag_name || "Published release",
       detail: "发布了新的版本",
+      code: release?.tag_name || "REL",
       url: release?.html_url || `https://github.com/${repo}/releases`,
     };
   }
@@ -346,6 +352,7 @@ const renderGithubContribution = (item, index) => `<a class="github-item" href="
       <div class="github-item-meta">
         <span class="github-item-badge">${escapeHtml(item.badge)}</span>
         <span class="github-item-repo">${escapeHtml(item.repo)}</span>
+        ${item.code ? `<span class="github-item-code">${escapeHtml(item.code)}</span>` : ""}
       </div>
       <div class="github-item-copy">
         <h3>${escapeHtml(item.title)}</h3>

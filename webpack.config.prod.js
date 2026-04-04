@@ -20,6 +20,8 @@ module.exports = merge(common, {
         { from: 'icon.svg', to: 'icon.svg' },
         { from: 'favicon.ico', to: 'favicon.ico' },
         { from: 'robots.txt', to: 'robots.txt' },
+        { from: 'sitemap.xml', to: 'sitemap.xml' },
+        { from: 'feed.xml', to: 'feed.xml' },
         { from: 'icon.png', to: 'icon.png' },
         { from: '404.html', to: '404.html' },
         { from: 'site.webmanifest', to: 'site.webmanifest' },
