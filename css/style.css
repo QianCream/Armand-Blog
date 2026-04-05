@@ -1663,6 +1663,7 @@ button {
 .article-prose p,
 .article-prose ul,
 .article-prose ol,
+.article-prose .article-table-wrap,
 .article-prose pre,
 .article-prose blockquote {
   margin: 1.1em 0 0;
@@ -1678,6 +1679,55 @@ button {
 .article-prose ul,
 .article-prose ol {
   padding-left: 1.4rem;
+}
+
+.article-table-wrap {
+  overflow-x: auto;
+}
+
+.article-prose table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid rgba(47, 107, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.article-prose thead {
+  background: rgba(47, 107, 255, 0.08);
+}
+
+.article-prose th,
+.article-prose td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(47, 107, 255, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.article-prose th {
+  color: #16304f;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.article-prose td {
+  color: #3f5573;
+  font-size: 0.96rem;
+  line-height: 1.72;
+}
+
+.article-prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.article-prose tbody tr:nth-child(even) {
+  background: rgba(47, 107, 255, 0.03);
 }
 
 .article-prose li + li {
@@ -2009,6 +2059,32 @@ button {
 [data-theme="dark"] .article-prose pre {
   border-color: rgba(121, 169, 255, 0.16);
   background: linear-gradient(180deg, #091425, #0e1b32);
+}
+
+[data-theme="dark"] .article-prose table {
+  border-color: rgba(121, 169, 255, 0.14);
+  background: rgba(13, 27, 45, 0.82);
+}
+
+[data-theme="dark"] .article-prose thead {
+  background: rgba(121, 169, 255, 0.1);
+}
+
+[data-theme="dark"] .article-prose th,
+[data-theme="dark"] .article-prose td {
+  border-bottom-color: rgba(121, 169, 255, 0.12);
+}
+
+[data-theme="dark"] .article-prose th {
+  color: #dce8ff;
+}
+
+[data-theme="dark"] .article-prose td {
+  color: #bdd0ec;
+}
+
+[data-theme="dark"] .article-prose tbody tr:nth-child(even) {
+  background: rgba(121, 169, 255, 0.04);
 }
 
 [data-theme="dark"] .article-prose blockquote {

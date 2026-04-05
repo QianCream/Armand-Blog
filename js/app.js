@@ -125,6 +125,23 @@ const normalizeCodeLanguage = (value) => {
   return language;
 };
 
+const isMarkdownTableRow = (line) => /^\s*\|.+\|\s*$/.test(line);
+
+const isMarkdownTableSeparator = (line) => {
+  if (!isMarkdownTableRow(line)) {
+    return false;
+  }
+
+  const cells = line.trim().slice(1, -1).split("|").map((cell) => cell.trim());
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+};
+
+const splitMarkdownTableRow = (line) => line
+  .trim()
+  .slice(1, -1)
+  .split("|")
+  .map((cell) => cell.trim());
+
 const renderMarkdown = (markdown) => {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html = [];
@@ -197,6 +214,24 @@ const renderMarkdown = (markdown) => {
       }
 
       html.push(`<blockquote><p>${applyInlineMarkdown(quoteLines.join(" "))}</p></blockquote>`);
+      continue;
+    }
+
+    if (
+      isMarkdownTableRow(line)
+      && index + 1 < lines.length
+      && isMarkdownTableSeparator(lines[index + 1])
+    ) {
+      const headers = splitMarkdownTableRow(line);
+      index += 2;
+      const rows = [];
+
+      while (index < lines.length && isMarkdownTableRow(lines[index])) {
+        rows.push(splitMarkdownTableRow(lines[index]));
+        index += 1;
+      }
+
+      html.push(`<div class="article-table-wrap"><table><thead><tr>${headers.map((cell) => `<th>${applyInlineMarkdown(cell)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${applyInlineMarkdown(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
       continue;
     }
 
