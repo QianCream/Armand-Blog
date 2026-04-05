@@ -4,6 +4,15 @@
     {
       "badge": "commit",
       "repo": "QianCream/Armand-Blog",
+      "time": "04/05 10:40",
+      "title": "Push to Armand-Blog",
+      "detail": "最新提交已同步到 GitHub",
+      "code": "021fb17",
+      "url": "https://github.com/QianCream/Armand-Blog/commit/021fb17340aa15768d70acb767892ab079c886d4"
+    },
+    {
+      "badge": "commit",
+      "repo": "QianCream/Armand-Blog",
       "time": "04/05 10:36",
       "title": "Push to Armand-Blog",
       "detail": "最新提交已同步到 GitHub",
@@ -27,15 +36,6 @@
       "detail": "最新提交已同步到 GitHub",
       "code": "bf5de60",
       "url": "https://github.com/QianCream/Aethe/commit/bf5de607e02b1603c7c5597aef8006f38bd2318f"
-    },
-    {
-      "badge": "commit",
-      "repo": "QianCream/Aethe",
-      "time": "04/04 20:08",
-      "title": "Push to Aethe",
-      "detail": "最新提交已同步到 GitHub",
-      "code": "4a00b68",
-      "url": "https://github.com/QianCream/Aethe/commit/4a00b68dba2c53e6813ad4b14524dbdf6ca91f59"
     }
   ]
 }

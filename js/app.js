@@ -1218,143 +1218,7 @@ const initCmdPalette = () => {
 
 initCmdPalette();
 
-// ── Hero Command Rotation ─────────────────────────────────────
-const initCommandRotation = () => {
-  const band = document.querySelector(".hero-command-text");
-
-  if (!band || prefersReducedMotion.matches) {
-    return;
-  }
-
-  const commands = [
-    "cat ./now.md",
-    "git log --oneline ./articles/",
-    "grep -ri \"TODO\" ./src/aethe/",
-    "make && ./bin/aethe hello.ath",
-    "vim +$ ./articles/wip.md",
-    "ls -la ./projects/",
-    "diff ./ideas.md ./shipped.md",
-  ];
-
-  let idx = 0;
-
-  const type = (text, done) => {
-    let i = 0;
-    band.textContent = "";
-    const t = window.setInterval(() => {
-      band.textContent = text.slice(0, ++i);
-
-      if (i >= text.length) {
-        window.clearInterval(t);
-        done?.();
-      }
-    }, 36);
-  };
-
-  const erase = (done) => {
-    const t = window.setInterval(() => {
-      const len = band.textContent.length - 1;
-      band.textContent = band.textContent.slice(0, len);
-
-      if (len <= 0) {
-        window.clearInterval(t);
-        done?.();
-      }
-    }, 16);
-  };
-
-  const cycle = () => {
-    idx = (idx + 1) % commands.length;
-    erase(() => window.setTimeout(() => type(commands[idx], () => {
-      window.setTimeout(cycle, 3800);
-    }), 240));
-  };
-
-  window.setTimeout(cycle, 4500);
-};
-
-initCommandRotation();
-
-// ── Matrix Canvas ─────────────────────────────────────────────
-const initMatrixCanvas = () => {
-  if (prefersReducedMotion.matches) {
-    return;
-  }
-
-  const heroCopy = document.querySelector(".hero-copy");
-
-  if (!heroCopy) {
-    return;
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.className = "matrix-canvas";
-  canvas.setAttribute("aria-hidden", "true");
-  heroCopy.insertBefore(canvas, heroCopy.firstChild);
-
-  const ctx = canvas.getContext("2d");
-  const chars = "01アイウカキクケコサシスセソABCDEF{}[]();=><#/*".split("");
-  const SIZE = 13;
-  let drops = [];
-  let raf;
-
-  const resize = () => {
-    canvas.width = heroCopy.offsetWidth;
-    canvas.height = heroCopy.offsetHeight;
-    const cols = Math.floor(canvas.width / SIZE);
-    drops = Array.from({ length: cols }, () => -(Math.random() * 40));
-  };
-
-  resize();
-  new ResizeObserver(resize).observe(heroCopy);
-
-  const isDark = () => document.documentElement.dataset.theme === "dark";
-
-  const draw = () => {
-    ctx.fillStyle = isDark() ? "rgba(8,19,33,0.042)" : "rgba(237,243,251,0.038)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = `${SIZE}px "IBM Plex Mono",monospace`;
-
-    drops.forEach((y, i) => {
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      const bright = Math.random() > 0.94;
-
-      if (isDark()) {
-        ctx.fillStyle = bright
-          ? "rgba(86,211,162,0.42)"
-          : `rgba(47,107,255,${(Math.random() * 0.14 + 0.045).toFixed(3)})`;
-      } else {
-        ctx.fillStyle = bright
-          ? "rgba(12,166,120,0.34)"
-          : `rgba(47,107,255,${(Math.random() * 0.1 + 0.03).toFixed(3)})`;
-      }
-
-      ctx.fillText(char, i * SIZE, y * SIZE);
-
-      if (y * SIZE > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-
-      drops[i] += 0.55;
-    });
-
-    raf = requestAnimationFrame(draw);
-  };
-
-  const io = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      raf = requestAnimationFrame(draw);
-    } else {
-      cancelAnimationFrame(raf);
-    }
-  });
-
-  io.observe(heroCopy);
-};
-
-initMatrixCanvas();
-
-// ── Article TOC + EOF Footer ──────────────────────────────────
+// ── Article TOC ───────────────────────────────────────────────
 function generateArticleToc(container, meta) {
   if (!container) {
     return;
@@ -1383,7 +1247,7 @@ function generateArticleToc(container, meta) {
 
     const header = document.createElement("div");
     header.className = "toc-header";
-    header.innerHTML = `<span class="toc-prompt">$</span><span>ls --sections</span><span class="toc-count">${headings.length} sections</span>`;
+    header.innerHTML = `<span>目录</span><span class="toc-count">${headings.length} 节</span>`;
 
     const list = document.createElement("ol");
     list.className = "toc-list";
@@ -1447,25 +1311,6 @@ function generateArticleToc(container, meta) {
     updateActive();
   }
 
-  // EOF footer: word count + reading time
-  const plainText = prose.textContent.replace(/\s+/g, " ").trim();
-  const cjk = (plainText.match(/[\u3400-\u9fff]/g) || []).length;
-  const latin = (plainText.match(/[A-Za-z0-9_+-]+/g) || []).length;
-  const words = cjk + latin;
-  const mins = Math.max(1, Math.round(words / 260));
-  const sectionCount = headings.length;
-
-  const eof = document.createElement("div");
-  eof.className = "article-eof";
-  eof.innerHTML = `
-    <span class="article-eof-prompt">// EOF</span>
-    <span>${words.toLocaleString()} words</span>
-    <span>${mins} min read</span>
-    ${sectionCount ? `<span>${sectionCount} sections</span>` : ""}
-    ${meta?.date ? `<span>${escapeHtml(meta.date)}</span>` : ""}
-  `;
-
-  container.appendChild(eof);
 }
 
 // ── Copy Code Buttons ─────────────────────────────────────────

@@ -89,7 +89,7 @@
       <section class="hero section">
         <div class="container hero-grid">
           <div class="hero-copy reveal">
-            <p class="eyebrow">// 你好，我是</p>
+            <p class="eyebrow">你好，我是</p>
             <h1>ARMAND</h1>
             <p class="hero-text">初中生，在上海写代码和文章。</p>
 
@@ -99,30 +99,9 @@
               <span class="hero-command-state">online</span>
             </div>
 
-            <div class="hero-telemetry" aria-label="近况">
-              <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">在做</span>
-                <strong>Aethe 2 稳定推进</strong>
-              </div>
-              <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">在学</span>
-                <strong>C++，编译器，图形</strong>
-              </div>
-              <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">在写</span>
-                <strong>语言设计的笔记</strong>
-              </div>
-            </div>
-
             <div class="hero-actions">
-              <a class="button button-primary" href="#articles">read</a>
-              <a class="button button-secondary" href="#works">works</a>
-            </div>
-
-            <div class="hero-lines">
-              <span>[base] Shanghai</span>
-              <span>[lang] C艹</span>
-              <span>[blog] writing & building</span>
+              <a class="button button-primary" href="#articles">latest</a>
+              <a class="button button-secondary" href="articles/index.html">archive</a>
             </div>
 
             <div class="hero-terminal" aria-label="当前状态">
@@ -131,7 +110,7 @@
                 <span>~/armand/blog</span>
               </div>
               <div class="terminal-body">
-                <p><span class="terminal-key">latest</span><span>Aethe 教程上线了</span></p>
+                <p><span class="terminal-key">latest</span><span>写了篇递归下降解析器_</span></p>
                 <p><span class="terminal-key">reading</span><span>编译原理 / 图形学</span></p>
                 <p><span class="terminal-key">mood</span><span>curious, caffeinated_</span></p>
               </div>
@@ -168,40 +147,46 @@
             <div>
               <p class="eyebrow">/articles</p>
               <h2>文章</h2>
-              <p class="section-text">首页先看最近写的内容，项目和自我介绍往后放。</p>
-            </div>
-            <div class="section-tags" aria-hidden="true">
-              <span>latest</span>
-              <span>writing-first</span>
+              <p class="section-text">首页只看最近写的东西，完整归档单独放到文章页里。</p>
             </div>
           </div>
 
           <div class="articles-grid">
             <!-- ARTICLES:GENERATED:START -->
-          <div class="articles-summary panel reveal">
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">entries</span>
-              <strong>3</strong>
-            </div>
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">latest</span>
-              <strong>2026-04-03</strong>
-            </div>
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">reading</span>
-              <strong>91 min</strong>
-            </div>
+          <div class="articles-overview">
+            <a class="articles-archive-card panel reveal" href="articles/index.html">
+              <span class="articles-archive-path">/articles/</span>
+              <strong>文章归档</strong>
+              <p>首页仅展示最新的三篇文章。</p>
+              <span class="articles-archive-meta">4 entries online</span>
+            </a>
           </div>
-            <a class="article-card article-card-featured reveal collapse-reveal" href="articles/aethe-2-tutorial.html">
+            <a class="article-card article-card-featured reveal collapse-reveal" href="articles/rdp-cpp.html">
               <div class="panel-head">
                 <span class="article-meta">01</span>
                 <span class="panel-index">A1</span>
+              </div>
+              <span class="article-card-date">2026-04-05</span>
+              <div class="article-card-stats">
+                <span>Markdown</span>
+                <span>20 min read</span>
+              </div>
+              <div class="article-card-command">
+                <span class="article-card-command-prompt">$</span>
+                <span class="article-card-command-text">open ./articles/rdp-cpp.md</span>
+              </div>
+              <h3>递归下降解析器浅论</h3>
+              <p>从上下文无关文法出发，把每条产生式翻译成一个 C++ 函数，处理优先级、左递归和错误恢复。</p>
+            </a>
+            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/aethe-2-tutorial.html">
+              <div class="panel-head">
+                <span class="article-meta">02</span>
+                <span class="panel-index">A2</span>
               </div>
               <span class="article-card-date">2026-04-03</span>
               <div class="article-card-stats">
                 <span>Markdown</span>
                 <span>14 min read</span>
-                <span>74 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -212,14 +197,13 @@
             </a>
             <a class="article-card article-card-stack reveal collapse-reveal" href="articles/aethe-2-reference.html">
               <div class="panel-head">
-                <span class="article-meta">02</span>
-                <span class="panel-index">A2</span>
+                <span class="article-meta">03</span>
+                <span class="panel-index">A3</span>
               </div>
               <span class="article-card-date">2026-04-02</span>
               <div class="article-card-stats">
                 <span>Markdown</span>
                 <span>62 min read</span>
-                <span>188 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -228,24 +212,9 @@
               <h3>Aethe 语言参考</h3>
               <p>面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。</p>
             </a>
-            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/perlin-noise-intro.html">
-              <div class="panel-head">
-                <span class="article-meta">03</span>
-                <span class="panel-index">A3</span>
-              </div>
-              <span class="article-card-date">2026-03-29</span>
-              <div class="article-card-stats">
-                <span>Markdown</span>
-                <span>15 min read</span>
-                <span>39 sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/perlin-noise-intro.md</span>
-              </div>
-              <h3>柏林噪声浅论</h3>
-              <p>从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。</p>
-            </a>
+          <div class="articles-footer-cta reveal">
+            <a class="button button-secondary" href="articles/index.html">all 4 articles</a>
+          </div>
             <!-- ARTICLES:GENERATED:END -->
           </div>
         </div>
@@ -258,10 +227,6 @@
               <p class="eyebrow">/github</p>
               <h2>最近在做什么</h2>
               <p class="section-text">直接拉 GitHub 的公开动态，算是一种"实时更新"。</p>
-            </div>
-            <div class="section-tags" aria-hidden="true">
-              <span>live</span>
-              <span>public-events</span>
             </div>
           </div>
 
@@ -276,7 +241,24 @@
               </div>
             </div>
             <div class="github-list">
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/33639a642677a653e49634b061b20a47feab3c5b" target="_blank" rel="noreferrer" style="--github-index:0;">
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/021fb17340aa15768d70acb767892ab079c886d4" target="_blank" rel="noreferrer" style="--github-index:0;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/05 10:40</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">021fb17</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/33639a642677a653e49634b061b20a47feab3c5b" target="_blank" rel="noreferrer" style="--github-index:1;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/05 10:36</span>
@@ -293,7 +275,7 @@
                 </div>
               </div>
             </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/88e8d521b3a94f24b83193c540795a277f9655db" target="_blank" rel="noreferrer" style="--github-index:1;">
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/88e8d521b3a94f24b83193c540795a277f9655db" target="_blank" rel="noreferrer" style="--github-index:2;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/05 10:26</span>
@@ -310,7 +292,7 @@
                 </div>
               </div>
             </a>
-            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/bf5de607e02b1603c7c5597aef8006f38bd2318f" target="_blank" rel="noreferrer" style="--github-index:2;">
+            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/bf5de607e02b1603c7c5597aef8006f38bd2318f" target="_blank" rel="noreferrer" style="--github-index:3;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/04 22:49</span>
@@ -320,23 +302,6 @@
                   <span class="github-item-badge">commit</span>
                   <span class="github-item-repo">QianCream/Aethe</span>
                   <span class="github-item-code">bf5de60</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Aethe</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/4a00b68dba2c53e6813ad4b14524dbdf6ca91f59" target="_blank" rel="noreferrer" style="--github-index:3;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/04 20:08</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Aethe</span>
-                  <span class="github-item-code">4a00b68</span>
                 </div>
                 <div class="github-item-copy">
                   <h3>Push to Aethe</h3>
@@ -404,10 +369,6 @@
               <p class="eyebrow">/works</p>
               <h2>作品</h2>
               <p class="section-text">每个项目都从一个"不知道能不能做出来"开始。</p>
-            </div>
-            <div class="section-tags" aria-hidden="true">
-              <span>open source</span>
-              <span>ongoing</span>
             </div>
           </div>
 
@@ -486,6 +447,7 @@
       <div class="container footer-row">
         <p>© <span id="year"></span> armand.dev</p>
         <div class="footer-links">
+          <a href="articles/index.html">archive</a>
           <a href="feed.xml">feed.xml</a>
           <a href="sitemap.xml">sitemap.xml</a>
           <a href="https://github.com/QianCream" target="_blank" rel="noreferrer">github</a>

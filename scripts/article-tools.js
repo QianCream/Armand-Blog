@@ -4,6 +4,7 @@ const path = require("path");
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ARTICLES_DIR = path.join(ROOT_DIR, "articles");
 const INDEX_PATH = path.join(ROOT_DIR, "index.html");
+const ARCHIVE_INDEX_PATH = path.join(ARTICLES_DIR, "index.html");
 const SITEMAP_PATH = path.join(ROOT_DIR, "sitemap.xml");
 const FEED_PATH = path.join(ROOT_DIR, "feed.xml");
 const GENERATED_START = "<!-- ARTICLES:GENERATED:START -->";
@@ -12,6 +13,7 @@ const DEFAULT_AUTHOR = "Armand";
 const DEFAULT_AUTHOR_ROLE = "armand.dev";
 const DEFAULT_AVATAR = "../img/avatar.jpeg";
 const SITE_URL = "https://armand.dev";
+const HOME_ARTICLE_LIMIT = 6;
 const BASE_KEYWORDS = [
   "Armand",
   "技术博客",
@@ -238,6 +240,24 @@ const renderArticleStructuredData = (article) => escapeJsonForHtml({
   },
 });
 
+const renderArchiveStructuredData = (articles) => escapeJsonForHtml({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "文章归档 | Armand's Blog",
+  url: `${SITE_URL}/articles/`,
+  inLanguage: "zh-CN",
+  description: "Armand 博客的文章归档页，按年份收录全部文章。",
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: articles.slice(0, 20).map((article, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${SITE_URL}/articles/${article.slug}.html`,
+      name: article.title,
+    })),
+  },
+});
+
 const readMarkdownArticles = () => {
   const files = fs.readdirSync(ARTICLES_DIR)
     .filter((file) => file.endsWith(".md"))
@@ -268,6 +288,7 @@ const readMarkdownArticles = () => {
         author: meta.author || DEFAULT_AUTHOR,
         authorRole: meta.author_role || DEFAULT_AUTHOR_ROLE,
         avatar: meta.avatar || DEFAULT_AVATAR,
+        year: (meta.date || "").slice(0, 4) || "undated",
       };
     })
     .sort((left, right) => right.date.localeCompare(left.date) || left.slug.localeCompare(right.slug));
@@ -332,7 +353,7 @@ ${renderArticleStructuredData(article)}
     <main class="article-page">
       <div class="container article-shell">
         <header class="article-top reveal">
-          <a class="article-back" href="../index.html#articles">← back</a>
+          <a class="article-back" href="./index.html">← archive</a>
           <div class="article-author">
             <img class="article-author-avatar" data-article-avatar src="${escapeHtml(article.avatar)}" alt="${escapeHtml(article.author)} avatar">
             <div class="article-author-copy">
@@ -360,23 +381,35 @@ ${renderArticleStructuredData(article)}
 </html>
 `;
 
-const renderArticleSummary = (articles) => {
+const renderArticleSummary = (articles, homeArticles) => {
   const latestDate = articles[0]?.date || "undated";
   const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
 
-  return `          <div class="articles-summary panel reveal">
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">entries</span>
-              <strong>${articles.length}</strong>
+  return `          <div class="articles-overview">
+            <div class="articles-summary panel reveal">
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">entries</span>
+                <strong>${articles.length}</strong>
+              </div>
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">latest</span>
+                <strong>${escapeHtml(latestDate)}</strong>
+              </div>
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">reading</span>
+                <strong>${totalReadMinutes} min</strong>
+              </div>
             </div>
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">latest</span>
-              <strong>${escapeHtml(latestDate)}</strong>
-            </div>
-            <div class="articles-summary-item">
-              <span class="articles-summary-label">reading</span>
-              <strong>${totalReadMinutes} min</strong>
-            </div>
+            <a class="articles-archive-card panel reveal reveal-delay" href="articles/index.html">
+              <span class="articles-archive-path">/articles/</span>
+              <strong>文章归档</strong>
+              <p>首页只保留最近 ${homeArticles.length} 篇。以后文章再多，也都从这里进去。</p>
+              <span class="articles-archive-meta">${articles.length} entries online</span>
+            </a>
+          </div>
+          <div class="articles-home-note reveal">
+            <span class="panel-label">recent</span>
+            <p>首页展示最近 ${homeArticles.length} 篇，完整列表进 archive。</p>
           </div>`;
 };
 
@@ -399,10 +432,146 @@ const renderArticleCard = (article, index) => `            <a class="article-car
               <p>${escapeHtml(article.summary)}</p>
             </a>`;
 
+const renderArticlesFooter = (articles) => `          <div class="articles-footer-cta reveal">
+            <a class="button button-secondary" href="articles/index.html">all ${articles.length} articles</a>
+          </div>`;
+
+const groupArticlesByYear = (articles) => {
+  const groups = new Map();
+
+  articles.forEach((article) => {
+    const year = article.year || "undated";
+
+    if (!groups.has(year)) {
+      groups.set(year, []);
+    }
+
+    groups.get(year).push(article);
+  });
+
+  return Array.from(groups.entries()).map(([year, items]) => ({ year, items }));
+};
+
+const renderArchivePage = (articles) => {
+  const groupedArticles = groupArticlesByYear(articles);
+  const latestDate = articles[0]?.date || "undated";
+  const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
+
+  return `<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文章归档 | Armand's Blog</title>
+  <meta name="description" content="Armand 博客的文章归档页，按年份收录全部文章。">
+  <meta name="keywords" content="Armand, 文章归档, 技术博客, Aethe, F++, FreeWorld, C++, 图形, 语言设计">
+  <meta name="author" content="${escapeHtml(DEFAULT_AUTHOR)}">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="${SITE_URL}/articles/">
+  <meta property="og:title" content="文章归档 | Armand's Blog">
+  <meta property="og:description" content="Armand 博客的文章归档页，按年份收录全部文章。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Armand's Blog">
+  <meta property="og:url" content="${SITE_URL}/articles/">
+  <meta property="og:image" content="${SITE_URL}/img/avatar.jpeg">
+  <meta property="og:image:alt" content="Armand avatar">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="文章归档 | Armand's Blog">
+  <meta name="twitter:description" content="Armand 博客的文章归档页，按年份收录全部文章。">
+  <meta name="twitter:image" content="${SITE_URL}/img/avatar.jpeg">
+  <meta name="theme-color" content="#f0f2f5">
+  <link rel="alternate" type="application/rss+xml" title="Armand's Blog RSS Feed" href="${SITE_URL}/feed.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="icon" href="../favicon.png" type="image/png" sizes="64x64">
+  <link rel="icon" href="../icon.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <script type="application/ld+json">
+${renderArchiveStructuredData(articles)}
+  </script>
+</head>
+
+<body>
+  <div class="page-shell">
+    <main class="archive-page">
+      <div class="container archive-shell">
+        <header class="archive-top reveal">
+          <a class="article-back" href="../index.html#articles">← home</a>
+          <div class="article-author">
+            <img class="article-author-avatar" src="${escapeHtml(DEFAULT_AVATAR)}" alt="${escapeHtml(DEFAULT_AUTHOR)} avatar">
+            <div class="article-author-copy">
+              <strong>${escapeHtml(DEFAULT_AUTHOR)}</strong>
+              <span>${escapeHtml(DEFAULT_AUTHOR_ROLE)}</span>
+            </div>
+          </div>
+          <div class="archive-heading">
+            <p class="eyebrow">/articles/archive</p>
+            <h1 class="article-title">文章归档</h1>
+            <p class="archive-intro">首页只放最近的文章，这里保留全部内容。后面文章再多，也按年份继续往下长。</p>
+          </div>
+          <div class="archive-stats">
+            <span>${articles.length} entries</span>
+            <span>${escapeHtml(latestDate)} latest</span>
+            <span>${totalReadMinutes} min total</span>
+          </div>
+        </header>
+
+        <div class="archive-layout">
+          <aside class="archive-nav panel reveal collapse-reveal">
+            <div class="panel-head">
+              <span class="panel-label">years</span>
+              <span class="panel-index">${groupedArticles.length}</span>
+            </div>
+            <div class="archive-nav-list">
+${groupedArticles.map(({ year, items }) => `              <a href="#year-${escapeHtml(year)}">${escapeHtml(year)} <span>${items.length}</span></a>`).join("\n")}
+            </div>
+          </aside>
+
+          <div class="archive-groups">
+${groupedArticles.map(({ year, items }) => `            <section class="archive-group panel reveal collapse-reveal" id="year-${escapeHtml(year)}">
+              <div class="panel-head">
+                <span class="panel-label">${escapeHtml(year)}</span>
+                <span class="panel-index">${items.length} entries</span>
+              </div>
+              <div class="archive-list">
+${items.map((article) => `                <a class="archive-item" href="./${escapeHtml(article.slug)}.html">
+                  <div class="archive-item-date">${escapeHtml(article.date || "undated")}</div>
+                  <div class="archive-item-body">
+                    <h2>${escapeHtml(article.title)}</h2>
+                    <p>${escapeHtml(article.summary)}</p>
+                    <div class="archive-item-meta">
+                      <span>${escapeHtml(article.format)}</span>
+                      <span>${article.readMinutes} min read</span>
+                      <span>${article.sectionCount} sections</span>
+                    </div>
+                  </div>
+                </a>`).join("\n")}
+              </div>
+            </section>`).join("\n")}
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script defer src="../js/app.js"></script>
+</body>
+
+</html>
+`;
+};
+
 const renderSitemap = (articles) => {
   const latestDate = articles[0]?.date || new Date().toISOString().slice(0, 10);
   const urls = [
     { loc: `${SITE_URL}/`, lastmod: latestDate },
+    { loc: `${SITE_URL}/articles/`, lastmod: latestDate },
     ...articles.map((article) => ({
       loc: `${SITE_URL}/articles/${article.slug}.html`,
       lastmod: article.date || latestDate,
@@ -445,15 +614,19 @@ ${articles.map((article) => `    <item>
 
 const syncGeneratedArticles = () => {
   const articles = readMarkdownArticles();
+  const homeArticles = articles.slice(0, HOME_ARTICLE_LIMIT);
 
   articles.forEach((article) => {
     const htmlPath = path.join(ARTICLES_DIR, `${article.slug}.html`);
     fs.writeFileSync(htmlPath, renderArticlePage(article), "utf8");
   });
 
+  fs.writeFileSync(ARCHIVE_INDEX_PATH, renderArchivePage(articles), "utf8");
+
   const indexHtml = fs.readFileSync(INDEX_PATH, "utf8");
-  const summaryHtml = renderArticleSummary(articles);
-  const generatedCards = articles.map(renderArticleCard).join("\n");
+  const summaryHtml = renderArticleSummary(articles, homeArticles);
+  const generatedCards = homeArticles.map(renderArticleCard).join("\n");
+  const footerHtml = renderArticlesFooter(articles);
 
   if (!indexHtml.includes(GENERATED_START) || !indexHtml.includes(GENERATED_END)) {
     throw new Error("Missing article generation markers in index.html");
@@ -461,7 +634,7 @@ const syncGeneratedArticles = () => {
 
   const updatedIndex = indexHtml.replace(
     new RegExp(`${GENERATED_START}[\\s\\S]*?${GENERATED_END}`),
-    `${GENERATED_START}\n${summaryHtml}\n${generatedCards}\n            ${GENERATED_END}`,
+    `${GENERATED_START}\n${summaryHtml}\n${generatedCards}\n${footerHtml}\n            ${GENERATED_END}`,
   );
 
   fs.writeFileSync(INDEX_PATH, updatedIndex, "utf8");
