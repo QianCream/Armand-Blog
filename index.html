@@ -67,6 +67,7 @@
 <body>
   <div class="page-shell">
     <div class="grid-overlay" aria-hidden="true"></div>
+    <div class="scroll-progress" aria-hidden="true"></div>
 
     <header class="site-header">
       <div class="container nav">
@@ -88,28 +89,28 @@
       <section class="hero section">
         <div class="container hero-grid">
           <div class="hero-copy reveal">
-            <p class="eyebrow">coding.version</p>
+            <p class="eyebrow">// 你好，我是</p>
             <h1>ARMAND</h1>
-            <p class="hero-text">路在脚下，行将致远。</p>
+            <p class="hero-text">初中生，在上海写代码和文章。</p>
 
-            <div class="hero-command-band" aria-label="当前指令">
+            <div class="hero-command-band" aria-label="当前状态">
               <span class="hero-command-prompt">$</span>
-              <span class="hero-command-text">open --focus articles --topic Aethe --mode build</span>
+              <span class="hero-command-text">cat ./now.md</span>
               <span class="hero-command-state">online</span>
             </div>
 
-            <div class="hero-telemetry" aria-label="技术方向">
+            <div class="hero-telemetry" aria-label="近况">
               <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">mode</span>
-                <strong>build / write / ship</strong>
+                <span class="hero-telemetry-label">在做</span>
+                <strong>Aethe 2 稳定推进</strong>
               </div>
               <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">stack</span>
-                <strong>C++, compilers, graphics</strong>
+                <span class="hero-telemetry-label">在学</span>
+                <strong>C++，编译器，图形</strong>
               </div>
               <div class="hero-telemetry-item">
-                <span class="hero-telemetry-label">signal</span>
-                <strong>Aethe / F++ / blog</strong>
+                <span class="hero-telemetry-label">在写</span>
+                <strong>语言设计的笔记</strong>
               </div>
             </div>
 
@@ -120,8 +121,8 @@
 
             <div class="hero-lines">
               <span>[base] Shanghai</span>
-              <span>[focus] C艹</span>
-              <span>[now] Personal site</span>
+              <span>[lang] C艹</span>
+              <span>[blog] writing & building</span>
             </div>
 
             <div class="hero-terminal" aria-label="当前状态">
@@ -130,9 +131,9 @@
                 <span>~/armand/blog</span>
               </div>
               <div class="terminal-body">
-                <p><span class="terminal-key">focus</span><span>frontend, ui, notes</span></p>
-                <p><span class="terminal-key">build</span><span>personal site</span></p>
-                <p><span class="terminal-key">state</span><span>refining details_</span></p>
+                <p><span class="terminal-key">latest</span><span>Aethe 教程上线了</span></p>
+                <p><span class="terminal-key">reading</span><span>编译原理 / 图形学</span></p>
+                <p><span class="terminal-key">mood</span><span>curious, caffeinated_</span></p>
               </div>
             </div>
           </div>
@@ -143,9 +144,9 @@
                 <img class="profile-image" src="img/avatar.jpeg" alt="Armand avatar">
               </div>
               <div class="profile-meta">
-                <span class="eyebrow">PROFILE</span>
+                <span class="eyebrow">ARMAND</span>
                 <h2>Armand</h2>
-                <p>个人站点</p>
+                <p>上海 · 初中生</p>
               </div>
               <div class="profile-badges" aria-hidden="true">
                 <span>devlog</span>
@@ -153,8 +154,8 @@
                 <span>research</span>
               </div>
               <div class="profile-status">
-                <span class="profile-status-label">status</span>
-                <strong>writing, refining, shipping</strong>
+                <span class="profile-status-label">现在</span>
+                <strong>写文章，做语言，搞界面</strong>
               </div>
             </article>
           </aside>
@@ -188,7 +189,7 @@
             </div>
             <div class="articles-summary-item">
               <span class="articles-summary-label">reading</span>
-              <strong>26 min</strong>
+              <strong>92 min</strong>
             </div>
           </div>
             <a class="article-card article-card-featured reveal collapse-reveal" href="articles/aethe-2-tutorial.html">
@@ -199,8 +200,8 @@
               <span class="article-card-date">2026-04-03</span>
               <div class="article-card-stats">
                 <span>Markdown</span>
-                <span>5 min read</span>
-                <span>15 sections</span>
+                <span>14 min read</span>
+                <span>74 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -217,8 +218,8 @@
               <span class="article-card-date">2026-04-02</span>
               <div class="article-card-stats">
                 <span>Markdown</span>
-                <span>6 min read</span>
-                <span>29 sections</span>
+                <span>63 min read</span>
+                <span>189 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -255,8 +256,8 @@
           <div class="section-heading reveal">
             <div>
               <p class="eyebrow">/github</p>
-              <h2>最新贡献</h2>
-              <p class="section-text">这里会直接显示我最近在 GitHub 上公开可见的提交、PR 和其他贡献。</p>
+              <h2>最近在做什么</h2>
+              <p class="section-text">直接拉 GitHub 的公开动态，算是一种"实时更新"。</p>
             </div>
             <div class="section-tags" aria-hidden="true">
               <span>live</span>
@@ -270,12 +271,63 @@
               <a class="github-profile-link" href="https://github.com/QianCream" target="_blank" rel="noreferrer">@QianCream</a>
               <div class="github-summary-chips">
                 <span>4 events</span>
-                <span>1 repos</span>
+                <span>2 repos</span>
                 <span>latest commit</span>
               </div>
             </div>
             <div class="github-list">
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/5b67a50fbd70feacb4c36de8534cfcdba9cc462d" target="_blank" rel="noreferrer" style="--github-index:0;">
+            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/bf5de607e02b1603c7c5597aef8006f38bd2318f" target="_blank" rel="noreferrer" style="--github-index:0;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/04 22:49</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Aethe</span>
+                  <span class="github-item-code">bf5de60</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Aethe</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/4a00b68dba2c53e6813ad4b14524dbdf6ca91f59" target="_blank" rel="noreferrer" style="--github-index:1;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/04 20:08</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Aethe</span>
+                  <span class="github-item-code">4a00b68</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Aethe</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/1df151f103fb46288e6ee81e08b8394734505020" target="_blank" rel="noreferrer" style="--github-index:2;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/04 15:43</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">1df151f</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/5b67a50fbd70feacb4c36de8534cfcdba9cc462d" target="_blank" rel="noreferrer" style="--github-index:3;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/04 14:26</span>
@@ -285,57 +337,6 @@
                   <span class="github-item-badge">commit</span>
                   <span class="github-item-repo">QianCream/Armand-Blog</span>
                   <span class="github-item-code">5b67a50</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/a102a07684f9762fb9643d2f5aa19cc4ccdf4e99" target="_blank" rel="noreferrer" style="--github-index:1;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/03 22:25</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">a102a07</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/dc4f4ca8c915a1d12ec9b0d85d9191355586f014" target="_blank" rel="noreferrer" style="--github-index:2;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/03 20:45</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">dc4f4ca</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/f73c550fa50a930dc94e1a6c8a9150d917ce7349" target="_blank" rel="noreferrer" style="--github-index:3;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/03 19:42</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">f73c550</span>
                 </div>
                 <div class="github-item-copy">
                   <h3>Push to Armand-Blog</h3>
@@ -354,21 +355,23 @@
           <div class="section-heading reveal">
             <div>
               <p class="eyebrow">/intro</p>
-              <h2>简介</h2>
+              <h2>关于我</h2>
+              <p class="section-text">初中生，在上海。这里是我的想法和记录。</p>
             </div>
           </div>
 
           <div class="intro-grid">
             <article class="panel intro-panel reveal collapse-reveal">
               <div class="panel-head">
-                <span class="panel-label">node::intro</span>
+                <span class="panel-label">about</span>
                 <span class="panel-index">01</span>
               </div>
               <div class="intro-command">
                 <span class="intro-command-prompt">$</span>
-                <span class="intro-command-text">whoami --focus lang-design --age junior</span>
+                <span class="intro-command-text">whoami</span>
               </div>
-              <p class="intro-lead">初三学生，喜欢用C艹写硬解析语言。</p>
+              <p class="intro-lead">初三，上海。</p>
+              <p class="intro-note">喜欢用 C++ 自己搭语言——从词法到运行时都不想借库。这个博客是记录学习过程的地方，也是整理思路的草稿本。写给未来的自己，也分享给感兴趣的人。</p>
               <div class="intro-flags" aria-hidden="true">
                 <span>parser</span>
                 <span>tooling</span>
@@ -378,16 +381,16 @@
 
             <div class="intro-stack reveal reveal-delay collapse-reveal">
               <article class="stack-item">
-                <span class="stack-key">skill</span>
-                <strong>C艹 / Pygame / Web</strong>
+                <span class="stack-key">在用</span>
+                <strong>C++ / Pygame / Web</strong>
               </article>
               <article class="stack-item">
-                <span class="stack-key">interest</span>
+                <span class="stack-key">感兴趣</span>
                 <strong>界面设计 / 交互 / 视觉</strong>
               </article>
               <article class="stack-item">
-                <span class="stack-key">project</span>
-                <strong>Aethe稳定开发中 / 偶尔写小项目</strong>
+                <span class="stack-key">在做</span>
+                <strong>Aethe 稳定推进中，偶尔写小项目</strong>
               </article>
             </div>
           </div>
@@ -400,10 +403,11 @@
             <div>
               <p class="eyebrow">/works</p>
               <h2>作品</h2>
+              <p class="section-text">每个项目都从一个"不知道能不能做出来"开始。</p>
             </div>
             <div class="section-tags" aria-hidden="true">
-              <span>cover</span>
-              <span>preview</span>
+              <span>open source</span>
+              <span>ongoing</span>
             </div>
           </div>
 

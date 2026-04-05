@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "blog-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["webpack", "serve", "--config", "webpack.config.dev.js"],
+      "port": 8080
+    }
+  ]
+}

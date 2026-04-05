@@ -694,6 +694,9 @@ const loadMarkdownArticle = async () => {
     if (window.MathJax?.typesetPromise) {
       await window.MathJax.typesetPromise([markdownArticle]);
     }
+
+    generateArticleToc(markdownArticle, meta);
+    addCodeCopyButtons(markdownArticle);
   } catch (error) {
     markdownArticle.innerHTML = `<p>Markdown 加载失败，请检查内容文件路径。</p>`;
     console.error(error);
@@ -832,5 +835,611 @@ if (!prefersReducedMotion.matches && finePointer.matches) {
       cover.style.removeProperty("--cover-shift-x");
       cover.style.removeProperty("--cover-shift-y");
     });
+  });
+
+  // ── Smooth 3D Return ──────────────────────────────────────
+  curlSurfaces.forEach((surface) => {
+    surface.addEventListener("pointermove", () => {
+      surface.classList.remove("is-settling");
+    });
+
+    surface.addEventListener("pointerleave", () => {
+      surface.classList.add("is-settling");
+      window.setTimeout(() => surface.classList.remove("is-settling"), 420);
+    });
+  });
+}
+
+// ── Console Banner ────────────────────────────────────────────
+console.log(
+  "%c  ARMAND.DEV  ────────────────────────────────────────\n"
+  + "  build · write · ship   C++ · compilers · graphics\n"
+  + "  ────────────────────────────────────────────────────\n"
+  + "  github.com/QianCream\n",
+  "color:#2f6bff;font-family:'IBM Plex Mono',monospace;line-height:1.7;font-size:11px;"
+);
+console.log(
+  "%c  open source, built from scratch — inspect away :)",
+  "color:#0ca678;font-family:'IBM Plex Mono',monospace;font-size:10px;"
+);
+
+// ── Scroll Progress Bar ───────────────────────────────────────
+const scrollProgressBar = document.querySelector(".scroll-progress");
+if (scrollProgressBar) {
+  const updateScrollProgress = () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? Math.min(100, (window.scrollY / total) * 100) : 0;
+    scrollProgressBar.style.width = `${pct.toFixed(2)}%`;
+  };
+
+  window.addEventListener("scroll", updateScrollProgress, { passive: true });
+  updateScrollProgress();
+}
+
+// ── Hero Terminal Typing Animation ────────────────────────────
+const animateHeroTerminal = () => {
+  if (prefersReducedMotion.matches) {
+    return;
+  }
+
+  const terminalBody = document.querySelector(".hero-terminal .terminal-body");
+
+  if (!terminalBody) {
+    return;
+  }
+
+  const lines = Array.from(terminalBody.querySelectorAll("p"));
+  const lineData = lines.map((line) => {
+    const spans = Array.from(line.querySelectorAll("span"));
+    const valueSpan = spans[spans.length - 1];
+
+    if (!valueSpan || spans.length < 2) {
+      return null;
+    }
+
+    const text = valueSpan.textContent.replace(/_$/, "");
+    valueSpan.textContent = "";
+    return { valueSpan, text };
+  }).filter(Boolean);
+
+  let lineIndex = 0;
+
+  const typeNextLine = () => {
+    if (lineIndex >= lineData.length) {
+      return;
+    }
+
+    const { valueSpan, text } = lineData[lineIndex];
+    let charIndex = 0;
+
+    const interval = window.setInterval(() => {
+      charIndex += 1;
+      valueSpan.textContent = text.slice(0, charIndex);
+
+      if (charIndex >= text.length) {
+        window.clearInterval(interval);
+        lineIndex += 1;
+        window.setTimeout(typeNextLine, 130);
+      }
+    }, 30);
+  };
+
+  window.setTimeout(typeNextLine, 900);
+};
+
+animateHeroTerminal();
+
+// ── Command Palette ───────────────────────────────────────────
+const initCmdPalette = () => {
+  const getItems = () => [
+    {
+      tag: "home",
+      name: "Home",
+      hint: "scroll to top",
+      action() {
+        const el = document.querySelector("#top");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = "/";
+        }
+      },
+    },
+    {
+      tag: "art",
+      name: "Articles",
+      hint: "#articles · 文章列表",
+      action() {
+        const el = document.querySelector("#articles");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = "/#articles";
+        }
+      },
+    },
+    {
+      tag: "who",
+      name: "Intro",
+      hint: "#intro · 关于",
+      action() {
+        const el = document.querySelector("#intro");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = "/#intro";
+        }
+      },
+    },
+    {
+      tag: "work",
+      name: "Works",
+      hint: "#works · 作品集",
+      action() {
+        const el = document.querySelector("#works");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = "/#works";
+        }
+      },
+    },
+    {
+      tag: "gh",
+      name: "GitHub Profile",
+      hint: "github.com/QianCream",
+      action() {
+        window.open("https://github.com/QianCream", "_blank", "noreferrer");
+      },
+    },
+    {
+      tag: "◑",
+      name: "Toggle Theme",
+      hint: `switch to ${currentTheme === "dark" ? "light" : "dark"}`,
+      action() {
+        themeToggle.click();
+      },
+    },
+    {
+      tag: "rss",
+      name: "RSS Feed",
+      hint: "feed.xml · subscribe",
+      action() {
+        window.open("/feed.xml", "_blank");
+      },
+    },
+  ];
+
+  let backdropEl = null;
+  let activeIndex = 0;
+  let currentFiltered = [];
+
+  const filterItems = (query) => {
+    const q = query.toLowerCase();
+    return getItems().filter(
+      (item) => !q || item.name.toLowerCase().includes(q) || item.hint.toLowerCase().includes(q),
+    );
+  };
+
+  const renderList = (list, query) => {
+    currentFiltered = filterItems(query);
+    list.innerHTML = "";
+
+    currentFiltered.forEach((item, i) => {
+      const el = document.createElement("div");
+      el.className = `cmd-item${i === activeIndex ? " is-selected" : ""}`;
+      el.setAttribute("role", "option");
+      el.innerHTML = `
+        <span class="cmd-item-tag">${escapeHtml(item.tag)}</span>
+        <div class="cmd-item-body">
+          <div class="cmd-item-name">${escapeHtml(item.name)}</div>
+          <div class="cmd-item-hint">${escapeHtml(item.hint)}</div>
+        </div>
+        <span class="cmd-item-arrow">→</span>
+      `;
+      el.addEventListener("click", () => {
+        item.action();
+        closeCmd();
+      });
+      list.appendChild(el);
+    });
+  };
+
+  const openCmd = () => {
+    if (backdropEl) {
+      return;
+    }
+
+    activeIndex = 0;
+    backdropEl = document.createElement("div");
+    backdropEl.className = "cmd-backdrop";
+    backdropEl.setAttribute("role", "dialog");
+    backdropEl.setAttribute("aria-modal", "true");
+    backdropEl.setAttribute("aria-label", "Command Palette");
+
+    const palette = document.createElement("div");
+    palette.className = "cmd-palette";
+
+    const inputRow = document.createElement("div");
+    inputRow.className = "cmd-input-row";
+
+    const prompt = document.createElement("span");
+    prompt.className = "cmd-prompt-char";
+    prompt.textContent = "$";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "cmd-input";
+    input.placeholder = "type a command or search...";
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("spellcheck", "false");
+
+    const escKey = document.createElement("span");
+    escKey.className = "cmd-esc-key";
+    escKey.textContent = "esc";
+
+    inputRow.append(prompt, input, escKey);
+
+    const list = document.createElement("div");
+    list.className = "cmd-list";
+    list.setAttribute("role", "listbox");
+
+    const footer = document.createElement("div");
+    footer.className = "cmd-footer";
+    footer.innerHTML = `
+      <span class="cmd-footer-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-footer-hint"><kbd>↵</kbd> select</span>
+      <span class="cmd-footer-hint"><kbd>⌘K</kbd> toggle</span>
+    `;
+
+    palette.append(inputRow, list, footer);
+    backdropEl.appendChild(palette);
+    document.body.appendChild(backdropEl);
+    renderList(list, "");
+
+    window.setTimeout(() => input.focus(), 20);
+
+    input.addEventListener("input", () => {
+      activeIndex = 0;
+      renderList(list, input.value);
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, currentFiltered.length - 1);
+        renderList(list, input.value);
+        list.children[activeIndex]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        renderList(list, input.value);
+        list.children[activeIndex]?.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        currentFiltered[activeIndex]?.action();
+        closeCmd();
+      } else if (e.key === "Escape") {
+        closeCmd();
+      }
+    });
+
+    backdropEl.addEventListener("click", (e) => {
+      if (e.target === backdropEl) {
+        closeCmd();
+      }
+    });
+  };
+
+  const closeCmd = () => {
+    if (!backdropEl) {
+      return;
+    }
+
+    backdropEl.remove();
+    backdropEl = null;
+  };
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+
+      if (backdropEl) {
+        closeCmd();
+      } else {
+        openCmd();
+      }
+    }
+  });
+};
+
+initCmdPalette();
+
+// ── Hero Command Rotation ─────────────────────────────────────
+const initCommandRotation = () => {
+  const band = document.querySelector(".hero-command-text");
+
+  if (!band || prefersReducedMotion.matches) {
+    return;
+  }
+
+  const commands = [
+    "cat ./now.md",
+    "git log --oneline ./articles/",
+    "grep -ri \"TODO\" ./src/aethe/",
+    "make && ./bin/aethe hello.ath",
+    "vim +$ ./articles/wip.md",
+    "ls -la ./projects/",
+    "diff ./ideas.md ./shipped.md",
+  ];
+
+  let idx = 0;
+
+  const type = (text, done) => {
+    let i = 0;
+    band.textContent = "";
+    const t = window.setInterval(() => {
+      band.textContent = text.slice(0, ++i);
+
+      if (i >= text.length) {
+        window.clearInterval(t);
+        done?.();
+      }
+    }, 36);
+  };
+
+  const erase = (done) => {
+    const t = window.setInterval(() => {
+      const len = band.textContent.length - 1;
+      band.textContent = band.textContent.slice(0, len);
+
+      if (len <= 0) {
+        window.clearInterval(t);
+        done?.();
+      }
+    }, 16);
+  };
+
+  const cycle = () => {
+    idx = (idx + 1) % commands.length;
+    erase(() => window.setTimeout(() => type(commands[idx], () => {
+      window.setTimeout(cycle, 3800);
+    }), 240));
+  };
+
+  window.setTimeout(cycle, 4500);
+};
+
+initCommandRotation();
+
+// ── Matrix Canvas ─────────────────────────────────────────────
+const initMatrixCanvas = () => {
+  if (prefersReducedMotion.matches) {
+    return;
+  }
+
+  const heroCopy = document.querySelector(".hero-copy");
+
+  if (!heroCopy) {
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.className = "matrix-canvas";
+  canvas.setAttribute("aria-hidden", "true");
+  heroCopy.insertBefore(canvas, heroCopy.firstChild);
+
+  const ctx = canvas.getContext("2d");
+  const chars = "01アイウカキクケコサシスセソABCDEF{}[]();=><#/*".split("");
+  const SIZE = 13;
+  let drops = [];
+  let raf;
+
+  const resize = () => {
+    canvas.width = heroCopy.offsetWidth;
+    canvas.height = heroCopy.offsetHeight;
+    const cols = Math.floor(canvas.width / SIZE);
+    drops = Array.from({ length: cols }, () => -(Math.random() * 40));
+  };
+
+  resize();
+  new ResizeObserver(resize).observe(heroCopy);
+
+  const isDark = () => document.documentElement.dataset.theme === "dark";
+
+  const draw = () => {
+    ctx.fillStyle = isDark() ? "rgba(8,19,33,0.042)" : "rgba(237,243,251,0.038)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = `${SIZE}px "IBM Plex Mono",monospace`;
+
+    drops.forEach((y, i) => {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const bright = Math.random() > 0.94;
+
+      if (isDark()) {
+        ctx.fillStyle = bright
+          ? "rgba(86,211,162,0.42)"
+          : `rgba(47,107,255,${(Math.random() * 0.14 + 0.045).toFixed(3)})`;
+      } else {
+        ctx.fillStyle = bright
+          ? "rgba(12,166,120,0.34)"
+          : `rgba(47,107,255,${(Math.random() * 0.1 + 0.03).toFixed(3)})`;
+      }
+
+      ctx.fillText(char, i * SIZE, y * SIZE);
+
+      if (y * SIZE > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+
+      drops[i] += 0.55;
+    });
+
+    raf = requestAnimationFrame(draw);
+  };
+
+  const io = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      raf = requestAnimationFrame(draw);
+    } else {
+      cancelAnimationFrame(raf);
+    }
+  });
+
+  io.observe(heroCopy);
+};
+
+initMatrixCanvas();
+
+// ── Article TOC + EOF Footer ──────────────────────────────────
+function generateArticleToc(container, meta) {
+  if (!container) {
+    return;
+  }
+
+  const prose = container.querySelector(".article-prose");
+
+  if (!prose) {
+    return;
+  }
+
+  const headings = Array.from(prose.querySelectorAll("h2, h3"));
+
+  // Add IDs to headings for anchor links
+  headings.forEach((h, i) => {
+    if (!h.id) {
+      h.id = `s${i + 1}`;
+    }
+  });
+
+  // TOC: only render if there are enough sections
+  if (headings.length >= 3) {
+    const toc = document.createElement("nav");
+    toc.className = "article-toc reveal";
+    toc.setAttribute("aria-label", "目录");
+
+    const header = document.createElement("div");
+    header.className = "toc-header";
+    header.innerHTML = `<span class="toc-prompt">$</span><span>ls --sections</span><span class="toc-count">${headings.length} sections</span>`;
+
+    const list = document.createElement("ol");
+    list.className = "toc-list";
+
+    headings.forEach((h) => {
+      const item = document.createElement("li");
+      item.className = `toc-item toc-${h.tagName.toLowerCase()}`;
+      const link = document.createElement("a");
+      link.href = `#${h.id}`;
+      link.textContent = h.textContent;
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        h.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    toc.append(header, list);
+
+    const articleContent = document.querySelector(".article-content");
+
+    if (articleContent) {
+      articleContent.parentNode.insertBefore(toc, articleContent);
+
+      // Trigger reveal observer for the new element
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          ([entry], obs) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          },
+          { threshold: 0.1 },
+        );
+        observer.observe(toc);
+      } else {
+        toc.classList.add("is-visible");
+      }
+    }
+
+    // Highlight active section on scroll
+    const tocLinks = Array.from(toc.querySelectorAll(".toc-item a"));
+    const updateActive = () => {
+      const line = window.innerHeight * 0.28;
+      let activeId = headings[0]?.id;
+
+      headings.forEach((h) => {
+        if (h.getBoundingClientRect().top <= line) {
+          activeId = h.id;
+        }
+      });
+
+      tocLinks.forEach((link) => {
+        link.classList.toggle("is-active", link.getAttribute("href") === `#${activeId}`);
+      });
+    };
+
+    window.addEventListener("scroll", updateActive, { passive: true });
+    updateActive();
+  }
+
+  // EOF footer: word count + reading time
+  const plainText = prose.textContent.replace(/\s+/g, " ").trim();
+  const cjk = (plainText.match(/[\u3400-\u9fff]/g) || []).length;
+  const latin = (plainText.match(/[A-Za-z0-9_+-]+/g) || []).length;
+  const words = cjk + latin;
+  const mins = Math.max(1, Math.round(words / 260));
+  const sectionCount = headings.length;
+
+  const eof = document.createElement("div");
+  eof.className = "article-eof";
+  eof.innerHTML = `
+    <span class="article-eof-prompt">// EOF</span>
+    <span>${words.toLocaleString()} words</span>
+    <span>${mins} min read</span>
+    ${sectionCount ? `<span>${sectionCount} sections</span>` : ""}
+    ${meta?.date ? `<span>${escapeHtml(meta.date)}</span>` : ""}
+  `;
+
+  container.appendChild(eof);
+}
+
+// ── Copy Code Buttons ─────────────────────────────────────────
+function addCodeCopyButtons(container) {
+  if (!container) {
+    return;
+  }
+
+  container.querySelectorAll("pre").forEach((pre) => {
+    if (pre.querySelector(".code-copy-btn")) {
+      return;
+    }
+
+    const btn = document.createElement("button");
+    btn.className = "code-copy-btn";
+    btn.textContent = "copy";
+    btn.setAttribute("aria-label", "Copy code to clipboard");
+    btn.setAttribute("type", "button");
+
+    btn.addEventListener("click", async () => {
+      const code = pre.querySelector("code")?.textContent ?? "";
+
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = "✓ copied";
+        btn.classList.add("is-copied");
+        window.setTimeout(() => {
+          btn.textContent = "copy";
+          btn.classList.remove("is-copied");
+        }, 1800);
+      } catch {
+        btn.textContent = "failed";
+        window.setTimeout(() => {
+          btn.textContent = "copy";
+        }, 1200);
+      }
+    });
+
+    pre.appendChild(btn);
   });
 }
