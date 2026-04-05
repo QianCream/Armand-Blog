@@ -1840,6 +1840,23 @@ button {
   color: #bdd3ff;
 }
 
+.article-prose .hljs-built_in,
+.article-prose .hljs-symbol,
+.article-prose .hljs-bullet,
+.article-prose .hljs-link {
+  color: #8ee6c0;
+}
+
+.article-prose .hljs-operator,
+.article-prose .hljs-punctuation {
+  color: #a9bde2;
+}
+
+.article-prose .hljs-subst,
+.article-prose .hljs-meta {
+  color: #dfe9ff;
+}
+
 [data-theme="dark"] .article-page {
   background:
     radial-gradient(circle at top right, rgba(121, 169, 255, 0.14), transparent 28%),

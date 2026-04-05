@@ -122,7 +122,40 @@ const normalizeCodeLanguage = (value) => {
     return "fsharp";
   }
 
+  // Most Aethe examples were fenced as `scala`; fall back to a language
+  // with similar token patterns if Scala support is unavailable in the browser bundle.
+  if (language === "scala") {
+    return "scala";
+  }
+
   return language;
+};
+
+const highlightCodeBlocks = (container) => {
+  if (!window.hljs || !container) {
+    return;
+  }
+
+  container.querySelectorAll("pre code").forEach((block) => {
+    const className = Array.from(block.classList).find((name) => name.startsWith("language-")) || "";
+    const requestedLanguage = className.replace(/^language-/, "");
+    const source = block.textContent || "";
+    const fallbackLanguages = ["scala", "kotlin", "javascript", "python", "bash", "cpp"];
+
+    try {
+      if (requestedLanguage && window.hljs.getLanguage(requestedLanguage)) {
+        block.innerHTML = window.hljs.highlight(source, { language: requestedLanguage }).value;
+        block.classList.add("hljs");
+        return;
+      }
+
+      block.innerHTML = window.hljs.highlightAuto(source, fallbackLanguages).value;
+      block.classList.add("hljs");
+    } catch (error) {
+      block.textContent = source;
+      block.classList.add("hljs");
+    }
+  });
 };
 
 const isMarkdownTableRow = (line) => /^\s*\|.+\|\s*$/.test(line);
@@ -720,11 +753,7 @@ const loadMarkdownArticle = async () => {
     document.title = `${meta.title || titleNode.textContent} | Armand's Blog`;
     markdownArticle.innerHTML = `<div class="article-prose">${renderMarkdown(body)}</div>`;
 
-    if (window.hljs) {
-      markdownArticle.querySelectorAll("pre code").forEach((block) => {
-        window.hljs.highlightElement(block);
-      });
-    }
+    highlightCodeBlocks(markdownArticle);
 
     if (window.MathJax?.typesetPromise) {
       await window.MathJax.typesetPromise([markdownArticle]);
