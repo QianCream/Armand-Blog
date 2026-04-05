@@ -13,6 +13,7 @@ const DEFAULT_AUTHOR = "Armand";
 const DEFAULT_AUTHOR_ROLE = "armand.dev";
 const DEFAULT_AVATAR = "../img/avatar.jpeg";
 const SITE_URL = "https://armand.dev";
+const COMMENTS_API_BASE = process.env.COMMENTS_API_BASE || "";
 const HOME_ARTICLE_LIMIT = 6;
 const BASE_KEYWORDS = [
   "Armand",
@@ -31,6 +32,9 @@ const escapeHtml = (value) => String(value)
   .replaceAll("'", "&#39;");
 
 const escapeJsonForHtml = (value) => JSON.stringify(value, null, 2)
+  .replace(/</g, "\\u003c");
+
+const escapeInlineScriptValue = (value) => JSON.stringify(String(value))
   .replace(/</g, "\\u003c");
 
 const parseFrontMatter = (raw) => {
@@ -346,6 +350,7 @@ ${renderArticleStructuredData(article)}
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
   <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+  ${COMMENTS_API_BASE ? `<script>window.__COMMENTS_API_BASE__ = ${escapeInlineScriptValue(COMMENTS_API_BASE)};</script>` : ""}
 </head>
 
 <body>
@@ -371,6 +376,25 @@ ${renderArticleStructuredData(article)}
         <article class="article-content reveal reveal-delay" data-markdown-source="./${escapeHtml(article.slug)}.md">
           <p class="article-loading">Loading markdown...</p>
         </article>
+        <section class="comments-section panel reveal collapse-reveal" data-comments-root data-article-slug="${escapeHtml(article.slug)}">
+          <div class="panel-head">
+            <span class="panel-label">comments</span>
+            <span class="panel-index" data-comments-count>0</span>
+          </div>
+          <p class="comments-status" data-comments-status>加载评论中...</p>
+          <div class="comments-list" data-comments-list></div>
+          <form class="comments-form" data-comments-form>
+            <label class="comments-field">
+              <span>昵称</span>
+              <input type="text" name="author" maxlength="40" required placeholder="你的名字">
+            </label>
+            <label class="comments-field">
+              <span>评论</span>
+              <textarea name="content" rows="4" maxlength="1000" required placeholder="写点什么..."></textarea>
+            </label>
+            <button class="button button-primary comments-submit" type="submit">发布评论</button>
+          </form>
+        </section>
       </div>
     </main>
   </div>

@@ -1820,6 +1820,97 @@ button {
   width: fit-content;
 }
 
+.comments-section {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.comments-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.comments-list {
+  display: grid;
+  gap: 10px;
+}
+
+.comment-item {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comment-meta strong,
+.comment-meta time {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem;
+}
+
+.comment-meta strong {
+  color: var(--text);
+}
+
+.comment-meta time {
+  color: var(--muted);
+}
+
+.comment-item p {
+  margin: 10px 0 0;
+  color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.78;
+  white-space: pre-wrap;
+}
+
+.comments-form {
+  display: grid;
+  gap: 10px;
+}
+
+.comments-field {
+  display: grid;
+  gap: 7px;
+}
+
+.comments-field span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.comments-field input,
+.comments-field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.comments-field input:focus,
+.comments-field textarea:focus {
+  outline: none;
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.comments-submit[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .article-prose {
   color: #3f5573;
   font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "Space Grotesk", sans-serif;
@@ -2307,6 +2398,30 @@ button {
   border-color: rgba(121, 169, 255, 0.16);
   background: rgba(19, 37, 59, 0.86);
   color: #8fb8ff;
+}
+
+[data-theme="dark"] .comment-item {
+  border-color: rgba(121, 169, 255, 0.14);
+  background: rgba(14, 31, 49, 0.76);
+}
+
+[data-theme="dark"] .comment-item p,
+[data-theme="dark"] .comment-meta strong,
+[data-theme="dark"] .comments-field input,
+[data-theme="dark"] .comments-field textarea {
+  color: #dbe7ff;
+}
+
+[data-theme="dark"] .comments-field input,
+[data-theme="dark"] .comments-field textarea {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(11, 24, 40, 0.88);
+}
+
+[data-theme="dark"] .comments-status,
+[data-theme="dark"] .comment-meta time,
+[data-theme="dark"] .comments-field span {
+  color: #a6bad8;
 }
 
 [data-theme="dark"] .article-prose a {
@@ -2826,6 +2941,10 @@ button {
   .work-copy,
   .article-card,
   .article-content {
+    padding: 16px;
+  }
+
+  .comments-section {
     padding: 16px;
   }
 

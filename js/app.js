@@ -767,9 +767,165 @@ const loadMarkdownArticle = async () => {
   }
 };
 
+const commentsRoot = document.querySelector("[data-comments-root]");
+
+const resolveCommentsApiBase = () => {
+  if (typeof window.__COMMENTS_API_BASE__ === "string" && window.__COMMENTS_API_BASE__.trim()) {
+    return window.__COMMENTS_API_BASE__.trim().replace(/\/+$/, "");
+  }
+
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:8787";
+  }
+
+  return "";
+};
+
+const buildCommentsApiUrl = (pathname) => `${resolveCommentsApiBase()}${pathname}`;
+
+const formatCommentDate = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const normalized = value.includes("T") ? value : value.replace(" ", "T");
+  const parsed = new Date(normalized);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
+
+const initComments = () => {
+  if (!commentsRoot) {
+    return;
+  }
+
+  const articleSlug = commentsRoot.dataset.articleSlug;
+  const statusNode = commentsRoot.querySelector("[data-comments-status]");
+  const listNode = commentsRoot.querySelector("[data-comments-list]");
+  const formNode = commentsRoot.querySelector("[data-comments-form]");
+  const countNode = commentsRoot.querySelector("[data-comments-count]");
+
+  if (!articleSlug || !statusNode || !listNode || !formNode || !countNode) {
+    return;
+  }
+
+  const submitButton = formNode.querySelector("[type='submit']");
+
+  const setStatus = (text) => {
+    statusNode.textContent = text;
+  };
+
+  const renderComments = (comments) => {
+    countNode.textContent = comments.length.toString();
+    listNode.innerHTML = "";
+
+    if (!comments.length) {
+      setStatus("还没有评论，来做第一个留言的人吧。");
+      return;
+    }
+
+    setStatus(`共 ${comments.length} 条评论`);
+    comments.forEach((comment) => {
+      const item = document.createElement("article");
+      item.className = "comment-item";
+      item.innerHTML = `
+        <div class="comment-meta">
+          <strong>${escapeHtml(comment.author || "匿名")}</strong>
+          <time>${escapeHtml(formatCommentDate(comment.createdAt))}</time>
+        </div>
+        <p>${escapeHtml(comment.content || "")}</p>
+      `;
+      listNode.appendChild(item);
+    });
+  };
+
+  const fetchComments = async () => {
+    setStatus("加载评论中...");
+
+    try {
+      const response = await fetch(`${buildCommentsApiUrl("/api/comments")}?article=${encodeURIComponent(articleSlug)}`);
+
+      if (!response.ok) {
+        throw new Error(`Load comments failed: ${response.status}`);
+      }
+
+      const payload = await response.json();
+      renderComments(Array.isArray(payload.comments) ? payload.comments : []);
+    } catch (error) {
+      setStatus("评论加载失败，请稍后刷新重试。");
+      console.error(error);
+    }
+  };
+
+  formNode.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(formNode);
+    const author = String(formData.get("author") || "").trim();
+    const content = String(formData.get("content") || "").trim();
+
+    if (!author || !content) {
+      setStatus("昵称和评论内容不能为空。");
+      return;
+    }
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "提交中...";
+    }
+
+    try {
+      const response = await fetch(buildCommentsApiUrl("/api/comments"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          articleSlug,
+          author,
+          content,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const retryTip = payload.retryAfter ? `请 ${payload.retryAfter} 秒后再试。` : "请稍后重试。";
+        throw new Error(payload.error ? `${payload.error} ${retryTip}` : retryTip);
+      }
+
+      formNode.reset();
+      setStatus("评论发布成功。");
+      await fetchComments();
+    } catch (error) {
+      setStatus(`评论发布失败：${error.message || "未知错误"}`);
+      console.error(error);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "发布评论";
+      }
+    }
+  });
+
+  fetchComments();
+};
+
 staggerTargets.forEach((node) => applyStaggerText(node));
 loadMarkdownArticle();
 loadGithubContributions();
+initComments();
 
 if (!prefersReducedMotion.matches && finePointer.matches) {
   const updateSpotlight = (node, event) => {

@@ -13,7 +13,14 @@
     "sync:articles": "node scripts/sync-articles.js",
     "publish:article": "node scripts/publish-article.js",
     "start": "npm run sync:articles && webpack serve --open --config webpack.config.dev.js",
+    "start:comments": "node server/comments-server.js",
     "build": "npm run sync:articles && webpack --config webpack.config.prod.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
