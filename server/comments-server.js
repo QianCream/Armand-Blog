@@ -13,11 +13,6 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((item) => item.trim())
   .filter(Boolean);
-const ADMIN_TOKEN = String(process.env.COMMENTS_ADMIN_TOKEN || "").trim();
-const SESSION_SECRET = String(process.env.COMMENTS_SESSION_SECRET || process.env.COMMENTS_ADMIN_TOKEN || "").trim();
-const SESSION_COOKIE_NAME = "comments_admin";
-const SESSION_MAX_AGE_DAYS = Math.max(1, Number(process.env.COMMENTS_SESSION_MAX_AGE_DAYS || 180));
-const SESSION_MAX_AGE_MS = SESSION_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
 const RATE_BURST_SECONDS = 20;
 const RATE_LIMIT_PER_HOUR = 20;
 const MAX_CONTENT_LENGTH = 1000;
@@ -144,109 +139,10 @@ const checkRateLimit = (ipHash) => {
   return { ok: true, retryAfterSeconds: 0 };
 };
 
-const secureCompare = (left, right) => {
-  const leftBuf = Buffer.from(String(left || ""));
-  const rightBuf = Buffer.from(String(right || ""));
-
-  if (leftBuf.length !== rightBuf.length) {
-    return false;
-  }
-
-  return crypto.timingSafeEqual(leftBuf, rightBuf);
-};
-
-const parseCookies = (header) => {
-  const cookies = {};
-
-  if (!header) {
-    return cookies;
-  }
-
-  header.split(";").forEach((entry) => {
-    const separatorIndex = entry.indexOf("=");
-    if (separatorIndex <= 0) {
-      return;
-    }
-    const key = entry.slice(0, separatorIndex).trim();
-    const value = entry.slice(separatorIndex + 1).trim();
-    try {
-      cookies[key] = decodeURIComponent(value);
-    } catch {
-      cookies[key] = value;
-    }
-  });
-
-  return cookies;
-};
-
-const createSessionToken = (expiresAtMs) => {
-  const payload = String(expiresAtMs);
-  const signature = crypto
-    .createHmac("sha256", SESSION_SECRET)
-    .update(payload)
-    .digest("hex");
-
-  return `${payload}.${signature}`;
-};
-
-const verifySessionToken = (token) => {
-  if (!token || !SESSION_SECRET) {
-    return false;
-  }
-
-  const segments = String(token).split(".");
-  if (segments.length !== 2) {
-    return false;
-  }
-
-  const [payload, signature] = segments;
-  const expiresAtMs = Number(payload);
-  if (!Number.isFinite(expiresAtMs) || expiresAtMs < Date.now()) {
-    return false;
-  }
-
-  const expectedSignature = crypto
-    .createHmac("sha256", SESSION_SECRET)
-    .update(payload)
-    .digest("hex");
-
-  return secureCompare(signature, expectedSignature);
-};
-
-const isAdminRequest = (req) => {
-  const cookies = parseCookies(req.headers.cookie);
-  return verifySessionToken(cookies[SESSION_COOKIE_NAME]);
-};
-
-const setSessionCookie = (req, res) => {
-  const expiresAtMs = Date.now() + SESSION_MAX_AGE_MS;
-  const token = createSessionToken(expiresAtMs);
-  const secureCookie = req.secure || process.env.NODE_ENV === "production";
-
-  res.cookie(SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: secureCookie,
-    sameSite: "lax",
-    path: "/api",
-    maxAge: SESSION_MAX_AGE_MS,
-  });
-};
-
-const clearSessionCookie = (req, res) => {
-  const secureCookie = req.secure || process.env.NODE_ENV === "production";
-
-  res.clearCookie(SESSION_COOKIE_NAME, {
-    httpOnly: true,
-    secure: secureCookie,
-    sameSite: "lax",
-    path: "/api",
-  });
-};
-
 const mapCommentRow = (row) => ({
   id: row.id,
   parentId: row.parent_id ?? null,
-  isAuthor: Boolean(row.is_author),
+  isAuthor: false,
   author: row.author,
   content: row.content,
   createdAt: row.created_at,
@@ -255,35 +151,6 @@ const mapCommentRow = (row) => ({
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true });
-});
-
-app.get("/api/admin/session", (req, res) => {
-  res.json({
-    authenticated: isAdminRequest(req),
-    configured: Boolean(ADMIN_TOKEN && SESSION_SECRET),
-  });
-});
-
-app.post("/api/admin/login", (req, res) => {
-  if (!ADMIN_TOKEN || !SESSION_SECRET) {
-    res.status(503).json({ error: "Admin session is not configured" });
-    return;
-  }
-
-  const token = String(req.body?.token || "").trim();
-
-  if (!token || !secureCompare(token, ADMIN_TOKEN)) {
-    res.status(401).json({ error: "Invalid token" });
-    return;
-  }
-
-  setSessionCookie(req, res);
-  res.json({ ok: true });
-});
-
-app.post("/api/admin/logout", (req, res) => {
-  clearSessionCookie(req, res);
   res.json({ ok: true });
 });
 
@@ -302,7 +169,6 @@ app.get("/api/comments", (req, res) => {
       SELECT
         c.id,
         c.parent_id,
-        c.is_author,
         c.author,
         c.content,
         c.created_at,
@@ -326,9 +192,6 @@ app.get("/api/comments", (req, res) => {
 
   res.json({
     comments: rows.map(mapCommentRow),
-    viewer: {
-      isAuthor: isAdminRequest(req),
-    },
   });
 });
 
@@ -388,7 +251,6 @@ app.post("/api/comments", (req, res) => {
 
   const ipHash = hashIp(getClientIp(req));
   const rate = checkRateLimit(ipHash);
-  const isAuthor = isAdminRequest(req) ? 1 : 0;
 
   if (!rate.ok) {
     res.setHeader("Retry-After", String(rate.retryAfterSeconds));
@@ -398,14 +260,14 @@ app.post("/api/comments", (req, res) => {
 
   const result = db
     .prepare(`
-      INSERT INTO comments (article_slug, parent_id, is_author, author, content, ip_hash)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO comments (article_slug, parent_id, author, content, ip_hash)
+      VALUES (?, ?, ?, ?, ?)
     `)
-    .run(articleSlug, parentId, isAuthor, author, content, ipHash);
+    .run(articleSlug, parentId, author, content, ipHash);
 
   const inserted = db
     .prepare(`
-      SELECT id, parent_id, is_author, author, content, created_at,
+      SELECT id, parent_id, author, content, created_at,
         0 AS like_count,
         0 AS liked
       FROM comments

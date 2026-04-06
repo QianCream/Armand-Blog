@@ -826,7 +826,6 @@ const initComments = () => {
   const sortStorageKey = `comments-sort:${articleSlug}`;
   const mainDraftStorageKey = `comments-draft:${articleSlug}`;
   const getReplyDraftKey = (commentId) => `comments-reply-draft:${articleSlug}:${commentId}`;
-  const adminTokenQueryKey = "admin_token";
   const allowedSortModes = new Set(["latest", "oldest", "top"]);
   let currentSortMode = localStorage.getItem(sortStorageKey) || "latest";
   if (!allowedSortModes.has(currentSortMode)) {
@@ -854,8 +853,6 @@ const initComments = () => {
   if (sortSelect) {
     sortSelect.value = currentSortMode;
   }
-
-  let isAuthorViewer = false;
 
   const setStatus = (text) => {
     statusNode.textContent = text;
@@ -915,8 +912,6 @@ const initComments = () => {
     });
   }
 
-  const syncAuthorAuthUi = () => {};
-
   const requestJson = async (path, options = {}) => {
     const response = await fetch(buildCommentsApiUrl(path), {
       credentials: "include",
@@ -930,69 +925,6 @@ const initComments = () => {
     }
 
     return payload;
-  };
-
-  const stripAdminTokenFromUrl = () => {
-    const current = new URL(window.location.href);
-    let touched = false;
-
-    if (current.searchParams.has(adminTokenQueryKey)) {
-      current.searchParams.delete(adminTokenQueryKey);
-      touched = true;
-    }
-
-    if (current.hash.startsWith(`#${adminTokenQueryKey}=`)) {
-      current.hash = "";
-      touched = true;
-    }
-
-    if (touched) {
-      const clean = `${current.pathname}${current.search}${current.hash}`;
-      window.history.replaceState({}, "", clean || "/");
-    }
-  };
-
-  const readAdminTokenFromUrl = () => {
-    const current = new URL(window.location.href);
-    const fromQuery = current.searchParams.get(adminTokenQueryKey);
-
-    if (fromQuery) {
-      return fromQuery.trim();
-    }
-
-    if (current.hash.startsWith(`#${adminTokenQueryKey}=`)) {
-      return decodeURIComponent(current.hash.slice(adminTokenQueryKey.length + 2)).trim();
-    }
-
-    return "";
-  };
-
-  const tryAutoAdminLogin = async () => {
-    const token = readAdminTokenFromUrl();
-
-    if (!token) {
-      return false;
-    }
-
-    try {
-      await requestJson("/api/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-      isAuthorViewer = true;
-      syncAuthorAuthUi();
-      setStatus("已识别为作者。");
-      return true;
-    } catch (error) {
-      setStatus(`作者识别失败：${error.message || "未知错误"}`);
-      console.error(error);
-      return false;
-    } finally {
-      stripAdminTokenFromUrl();
-    }
   };
 
   const closeInlineReply = () => {
@@ -1179,7 +1111,6 @@ const initComments = () => {
       <div class="comment-meta">
         <div class="comment-author">
           <strong>${escapeHtml(comment.author || "匿名")}</strong>
-          ${comment.isAuthor ? "<span class=\"comment-author-badge\">author</span>" : ""}
         </div>
         <time>${escapeHtml(formatCommentDate(comment.createdAt))}</time>
       </div>
@@ -1312,24 +1243,11 @@ const initComments = () => {
     renderComments(commentsCache, fetchComments);
   });
 
-  const checkAuthorSession = async () => {
-    try {
-      const payload = await requestJson("/api/admin/session");
-      isAuthorViewer = Boolean(payload.authenticated);
-      syncAuthorAuthUi();
-    } catch {
-      isAuthorViewer = false;
-      syncAuthorAuthUi();
-    }
-  };
-
   const fetchComments = async () => {
     setStatus("加载评论中...");
 
     try {
       const payload = await requestJson(`/api/comments?article=${encodeURIComponent(articleSlug)}`);
-      isAuthorViewer = Boolean(payload.viewer?.isAuthor);
-      syncAuthorAuthUi();
       renderComments(Array.isArray(payload.comments) ? payload.comments : [], fetchComments);
     } catch (error) {
       setStatus("评论加载失败，请稍后刷新重试。");
@@ -1377,16 +1295,7 @@ const initComments = () => {
     }
   });
 
-  syncAuthorAuthUi();
-  checkAuthorSession()
-    .then(async () => {
-      if (!isAuthorViewer) {
-        await tryAutoAdminLogin();
-      }
-    })
-    .finally(() => {
-      fetchComments();
-    });
+  fetchComments();
 };
 
 staggerTargets.forEach((node) => applyStaggerText(node));
