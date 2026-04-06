@@ -1832,6 +1832,52 @@ button {
   font-size: 0.92rem;
 }
 
+.comments-admin {
+  display: grid;
+  gap: 8px;
+}
+
+.comments-admin-toggle {
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  padding: 4px 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.comments-admin-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.comments-admin-token {
+  min-width: 220px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.84rem;
+}
+
+.comments-admin-save,
+.comments-admin-clear {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  padding: 4px 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
 .comments-list {
   display: grid;
   gap: 10px;
@@ -1876,6 +1922,49 @@ button {
 .comments-form {
   display: grid;
   gap: 10px;
+}
+
+.comments-reply-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-soft);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.comments-reply-cancel,
+.comment-reply-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  padding: 4px 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.comment-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.comment-replies {
+  margin: -2px 0 4px 18px;
+  padding-left: 12px;
+  border-left: 1px dashed var(--line);
+  display: grid;
+  gap: 8px;
+}
+
+.comment-item-reply {
+  background: var(--panel);
 }
 
 .comments-field {
@@ -2418,10 +2507,37 @@ button {
   background: rgba(11, 24, 40, 0.88);
 }
 
+[data-theme="dark"] .comments-admin-toggle,
+[data-theme="dark"] .comments-admin-save,
+[data-theme="dark"] .comments-admin-clear {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(19, 37, 59, 0.86);
+  color: #8fb8ff;
+}
+
+[data-theme="dark"] .comments-admin-token {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(11, 24, 40, 0.88);
+  color: #dbe7ff;
+}
+
 [data-theme="dark"] .comments-status,
 [data-theme="dark"] .comment-meta time,
 [data-theme="dark"] .comments-field span {
   color: #a6bad8;
+}
+
+[data-theme="dark"] .comments-reply-state {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(14, 31, 49, 0.76);
+  color: #a6bad8;
+}
+
+[data-theme="dark"] .comments-reply-cancel,
+[data-theme="dark"] .comment-reply-btn {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(19, 37, 59, 0.86);
+  color: #8fb8ff;
 }
 
 [data-theme="dark"] .article-prose a {

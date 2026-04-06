@@ -821,9 +821,160 @@ const initComments = () => {
   }
 
   const submitButton = formNode.querySelector("[type='submit']");
+  const commentsAdminStorageKey = "comments-admin-token";
+  let replyingTo = null;
+  let adminToken = localStorage.getItem(commentsAdminStorageKey) || "";
+
+  const adminNode = document.createElement("div");
+  adminNode.className = "comments-admin";
+  adminNode.innerHTML = `
+    <button type="button" class="comments-admin-toggle">admin</button>
+    <div class="comments-admin-panel" hidden>
+      <input type="password" class="comments-admin-token" placeholder="管理员 token">
+      <button type="button" class="comments-admin-save">保存</button>
+      <button type="button" class="comments-admin-clear">退出</button>
+    </div>
+  `;
+  commentsRoot.insertBefore(adminNode, statusNode);
+  const adminToggleButton = adminNode.querySelector(".comments-admin-toggle");
+  const adminPanel = adminNode.querySelector(".comments-admin-panel");
+  const adminTokenInput = adminNode.querySelector(".comments-admin-token");
+  const adminSaveButton = adminNode.querySelector(".comments-admin-save");
+  const adminClearButton = adminNode.querySelector(".comments-admin-clear");
+
+  const replyState = document.createElement("div");
+  replyState.className = "comments-reply-state";
+  replyState.hidden = true;
+  replyState.innerHTML = `
+    <span data-comments-reply-text></span>
+    <button type="button" class="comments-reply-cancel">取消回复</button>
+  `;
+  formNode.prepend(replyState);
+  const replyTextNode = replyState.querySelector("[data-comments-reply-text]");
+  const replyCancelButton = replyState.querySelector(".comments-reply-cancel");
 
   const setStatus = (text) => {
     statusNode.textContent = text;
+  };
+
+  const saveAdminToken = (nextToken) => {
+    adminToken = String(nextToken || "").trim();
+
+    if (adminToken) {
+      localStorage.setItem(commentsAdminStorageKey, adminToken);
+      setStatus("管理员模式已启用。");
+    } else {
+      localStorage.removeItem(commentsAdminStorageKey);
+      setStatus("管理员模式已关闭。");
+    }
+  };
+
+  adminToggleButton?.addEventListener("click", () => {
+    if (!adminPanel) {
+      return;
+    }
+
+    adminPanel.hidden = !adminPanel.hidden;
+    if (!adminPanel.hidden && adminTokenInput) {
+      adminTokenInput.value = adminToken;
+      adminTokenInput.focus();
+    }
+  });
+
+  adminSaveButton?.addEventListener("click", () => {
+    saveAdminToken(adminTokenInput?.value || "");
+    fetchComments();
+  });
+
+  adminClearButton?.addEventListener("click", () => {
+    saveAdminToken("");
+    if (adminTokenInput) {
+      adminTokenInput.value = "";
+    }
+    fetchComments();
+  });
+
+  const setReplyingTo = (comment) => {
+    replyingTo = comment || null;
+
+    if (!replyingTo) {
+      replyState.hidden = true;
+      if (replyTextNode) {
+        replyTextNode.textContent = "";
+      }
+      return;
+    }
+
+    replyState.hidden = false;
+    if (replyTextNode) {
+      replyTextNode.textContent = `正在回复 @${replyingTo.author || "匿名"} (#${replyingTo.id})`;
+    }
+  };
+
+  if (replyCancelButton) {
+    replyCancelButton.addEventListener("click", () => {
+      setReplyingTo(null);
+    });
+  }
+
+  const createCommentCard = (comment, options = {}) => {
+    const item = document.createElement("article");
+    item.className = options.reply ? "comment-item comment-item-reply" : "comment-item";
+    const allowReply = !options.reply;
+    const allowDelete = !!adminToken;
+
+    item.innerHTML = `
+      <div class="comment-meta">
+        <strong>${escapeHtml(comment.author || "匿名")}</strong>
+        <time>${escapeHtml(formatCommentDate(comment.createdAt))}</time>
+      </div>
+      <p>${escapeHtml(comment.content || "")}</p>
+      <div class="comment-actions">
+        ${allowReply ? "<button type=\"button\" class=\"comment-reply-btn\">回复</button>" : ""}
+        ${allowDelete ? "<button type=\"button\" class=\"comment-delete-btn\">删除</button>" : ""}
+      </div>
+    `;
+
+    if (allowReply) {
+      const replyBtn = item.querySelector(".comment-reply-btn");
+      replyBtn?.addEventListener("click", () => {
+        setReplyingTo(comment);
+        formNode.querySelector("textarea[name='content']")?.focus();
+      });
+    }
+
+    if (allowDelete) {
+      const deleteBtn = item.querySelector(".comment-delete-btn");
+      deleteBtn?.addEventListener("click", async () => {
+        const confirmed = window.confirm(`确认删除评论 #${comment.id} 吗？`);
+
+        if (!confirmed) {
+          return;
+        }
+
+        try {
+          const response = await fetch(buildCommentsApiUrl(`/api/comments/${encodeURIComponent(String(comment.id))}`), {
+            method: "DELETE",
+            headers: {
+              "X-Admin-Token": adminToken,
+            },
+          });
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            throw new Error(payload.error || `Delete failed: ${response.status}`);
+          }
+
+          setStatus(`评论 #${comment.id} 已删除。`);
+          await fetchComments();
+        } catch (error) {
+          setStatus(`删除失败：${error.message || "未知错误"}`);
+          console.error(error);
+        }
+      });
+    }
+
+    return item;
   };
 
   const renderComments = (comments) => {
@@ -835,18 +986,35 @@ const initComments = () => {
       return;
     }
 
-    setStatus(`共 ${comments.length} 条评论`);
-    comments.forEach((comment) => {
-      const item = document.createElement("article");
-      item.className = "comment-item";
-      item.innerHTML = `
-        <div class="comment-meta">
-          <strong>${escapeHtml(comment.author || "匿名")}</strong>
-          <time>${escapeHtml(formatCommentDate(comment.createdAt))}</time>
-        </div>
-        <p>${escapeHtml(comment.content || "")}</p>
-      `;
+    const topLevelComments = comments.filter((comment) => !comment.parentId);
+    const repliesByParentId = new Map();
+
+    comments
+      .filter((comment) => comment.parentId)
+      .forEach((reply) => {
+        const parentReplies = repliesByParentId.get(reply.parentId) || [];
+        parentReplies.push(reply);
+        repliesByParentId.set(reply.parentId, parentReplies);
+      });
+
+    setStatus(`共 ${comments.length} 条评论（含回复）`);
+
+    topLevelComments.forEach((comment) => {
+      const item = createCommentCard(comment);
       listNode.appendChild(item);
+
+      const replies = repliesByParentId.get(comment.id) || [];
+
+      if (!replies.length) {
+        return;
+      }
+
+      const repliesNode = document.createElement("div");
+      repliesNode.className = "comment-replies";
+      replies.forEach((reply) => {
+        repliesNode.appendChild(createCommentCard(reply, { reply: true }));
+      });
+      listNode.appendChild(repliesNode);
     });
   };
 
@@ -895,6 +1063,7 @@ const initComments = () => {
           articleSlug,
           author,
           content,
+          parentId: replyingTo?.id ?? null,
         }),
       });
 
@@ -906,6 +1075,7 @@ const initComments = () => {
       }
 
       formNode.reset();
+      setReplyingTo(null);
       setStatus("评论发布成功。");
       await fetchComments();
     } catch (error) {

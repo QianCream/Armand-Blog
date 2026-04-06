@@ -26,11 +26,18 @@ curl http://127.0.0.1:8787/api/health
 - `HOST`：默认 `0.0.0.0`
 - `COMMENTS_DB_PATH`：SQLite 路径，默认 `server/data/comments.db`
 - `CORS_ORIGINS`：允许跨域的站点，逗号分隔
+- `COMMENTS_ADMIN_TOKEN`：管理员删除评论使用的 token（可选）
 
 示例：
 
 ```bash
 PORT=8787 HOST=0.0.0.0 CORS_ORIGINS=https://armand.dev npm run start:comments
+```
+
+启用删除管理示例：
+
+```bash
+PORT=8787 HOST=0.0.0.0 CORS_ORIGINS=https://www.armand.top COMMENTS_ADMIN_TOKEN=your-secret-token npm run start:comments
 ```
 
 ## 3) 前端连接评论 API
@@ -65,6 +72,7 @@ location /api/ {
 
 - `GET /api/comments?article=<slug>`：获取某篇文章评论
 - `POST /api/comments`：提交评论
+- `DELETE /api/comments/:id`：删除评论（需要 `X-Admin-Token`）
 
 请求体：
 
@@ -87,4 +95,22 @@ location /api/ {
     "createdAt": "2026-04-05 13:00:00"
   }
 }
+```
+
+回复评论（一级嵌套）示例：
+
+```json
+{
+  "articleSlug": "rdp-cpp",
+  "author": "Bob",
+  "content": "这是回复",
+  "parentId": 1
+}
+```
+
+删除评论示例：
+
+```bash
+curl -X DELETE https://api.armand.top/api/comments/1 \
+  -H "X-Admin-Token: your-secret-token"
 ```

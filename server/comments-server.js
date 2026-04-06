@@ -13,6 +13,7 @@ const CORS_ORIGINS = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((item) => item.trim())
   .filter(Boolean);
+const ADMIN_TOKEN = String(process.env.COMMENTS_ADMIN_TOKEN || "").trim();
 const RATE_BURST_SECONDS = 20;
 const RATE_LIMIT_PER_HOUR = 20;
 const MAX_CONTENT_LENGTH = 1000;
@@ -27,6 +28,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     article_slug TEXT NOT NULL,
+    parent_id INTEGER,
     author TEXT NOT NULL,
     content TEXT NOT NULL,
     ip_hash TEXT NOT NULL,
@@ -36,6 +38,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_comments_article_created
   ON comments(article_slug, created_at DESC);
 `);
+try {
+  db.exec("ALTER TABLE comments ADD COLUMN parent_id INTEGER");
+} catch (error) {
+  if (!String(error?.message || "").includes("duplicate column name")) {
+    throw error;
+  }
+}
 
 const app = express();
 app.set("trust proxy", true);
@@ -111,6 +120,7 @@ const checkRateLimit = (ipHash) => {
 
 const mapCommentRow = (row) => ({
   id: row.id,
+  parentId: row.parent_id ?? null,
   author: row.author,
   content: row.content,
   createdAt: row.created_at,
@@ -130,7 +140,7 @@ app.get("/api/comments", (req, res) => {
 
   const rows = db
     .prepare(`
-      SELECT id, author, content, created_at
+      SELECT id, parent_id, author, content, created_at
       FROM comments
       WHERE article_slug = ?
       ORDER BY created_at DESC
@@ -145,6 +155,10 @@ app.post("/api/comments", (req, res) => {
   const articleSlug = normalizeSlug(req.body?.articleSlug || req.body?.article);
   const author = normalizeAuthor(req.body?.author);
   const content = normalizeContent(req.body?.content);
+  const parentIdRaw = req.body?.parentId;
+  const parentId = parentIdRaw === undefined || parentIdRaw === null || parentIdRaw === ""
+    ? null
+    : Number(parentIdRaw);
 
   if (!isValidSlug(articleSlug)) {
     res.status(400).json({ error: "Invalid article slug" });
@@ -161,6 +175,36 @@ app.post("/api/comments", (req, res) => {
     return;
   }
 
+  if (parentId !== null) {
+    if (!Number.isInteger(parentId) || parentId <= 0) {
+      res.status(400).json({ error: "Invalid parentId" });
+      return;
+    }
+
+    const parent = db
+      .prepare(`
+        SELECT id, article_slug, parent_id
+        FROM comments
+        WHERE id = ?
+      `)
+      .get(parentId);
+
+    if (!parent) {
+      res.status(400).json({ error: "Parent comment does not exist" });
+      return;
+    }
+
+    if (parent.article_slug !== articleSlug) {
+      res.status(400).json({ error: "Parent comment belongs to another article" });
+      return;
+    }
+
+    if (parent.parent_id !== null && parent.parent_id !== undefined) {
+      res.status(400).json({ error: "Only one-level replies are allowed" });
+      return;
+    }
+  }
+
   const ipHash = hashIp(getClientIp(req));
   const rate = checkRateLimit(ipHash);
 
@@ -172,20 +216,73 @@ app.post("/api/comments", (req, res) => {
 
   const result = db
     .prepare(`
-      INSERT INTO comments (article_slug, author, content, ip_hash)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO comments (article_slug, parent_id, author, content, ip_hash)
+      VALUES (?, ?, ?, ?, ?)
     `)
-    .run(articleSlug, author, content, ipHash);
+    .run(articleSlug, parentId, author, content, ipHash);
 
   const inserted = db
     .prepare(`
-      SELECT id, author, content, created_at
+      SELECT id, parent_id, author, content, created_at
       FROM comments
       WHERE id = ?
     `)
     .get(result.lastInsertRowid);
 
   res.status(201).json({ comment: mapCommentRow(inserted) });
+});
+
+app.delete("/api/comments/:id", (req, res) => {
+  if (!ADMIN_TOKEN) {
+    res.status(503).json({ error: "Admin delete is not configured" });
+    return;
+  }
+
+  const token = String(req.headers["x-admin-token"] || "").trim();
+
+  if (!token || token !== ADMIN_TOKEN) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ error: "Invalid comment id" });
+    return;
+  }
+
+  const target = db
+    .prepare(`
+      SELECT id, parent_id
+      FROM comments
+      WHERE id = ?
+    `)
+    .get(id);
+
+  if (!target) {
+    res.status(404).json({ error: "Comment not found" });
+    return;
+  }
+
+  let deleted = 0;
+
+  if (target.parent_id === null || target.parent_id === undefined) {
+    const repliesDeleteResult = db
+      .prepare("DELETE FROM comments WHERE parent_id = ?")
+      .run(id);
+    const topDeleteResult = db
+      .prepare("DELETE FROM comments WHERE id = ?")
+      .run(id);
+    deleted = Number(repliesDeleteResult.changes || 0) + Number(topDeleteResult.changes || 0);
+  } else {
+    const replyDeleteResult = db
+      .prepare("DELETE FROM comments WHERE id = ?")
+      .run(id);
+    deleted = Number(replyDeleteResult.changes || 0);
+  }
+
+  res.json({ ok: true, deleted });
 });
 
 app.use((error, _req, res, _next) => {
