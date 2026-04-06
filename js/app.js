@@ -821,187 +821,470 @@ const initComments = () => {
   }
 
   const submitButton = formNode.querySelector("[type='submit']");
-  const commentsAdminStorageKey = "comments-admin-token";
-  let replyingTo = null;
-  let adminToken = localStorage.getItem(commentsAdminStorageKey) || "";
+  const mainAuthorInput = formNode.querySelector("input[name='author']");
+  const mainContentInput = formNode.querySelector("textarea[name='content']");
+  const sortStorageKey = `comments-sort:${articleSlug}`;
+  const mainDraftStorageKey = `comments-draft:${articleSlug}`;
+  const getReplyDraftKey = (commentId) => `comments-reply-draft:${articleSlug}:${commentId}`;
+  const adminTokenQueryKey = "admin_token";
+  const allowedSortModes = new Set(["latest", "oldest", "top"]);
+  let currentSortMode = localStorage.getItem(sortStorageKey) || "latest";
+  if (!allowedSortModes.has(currentSortMode)) {
+    currentSortMode = "latest";
+  }
+  let commentsCache = [];
+  let activeReplyHost = null;
+  let activeReplyCommentId = null;
+  let activeReplyCommentBox = null;
 
-  const adminNode = document.createElement("div");
-  adminNode.className = "comments-admin";
-  adminNode.innerHTML = `
-    <button type="button" class="comments-admin-toggle">admin</button>
-    <div class="comments-admin-panel" hidden>
-      <input type="password" class="comments-admin-token" placeholder="管理员 token">
-      <button type="button" class="comments-admin-save">保存</button>
-      <button type="button" class="comments-admin-clear">退出</button>
-    </div>
+  const toolbar = document.createElement("div");
+  toolbar.className = "comments-toolbar";
+  toolbar.innerHTML = `
+    <label class="comments-sort">
+      <span>排序</span>
+      <select>
+        <option value="latest">最新</option>
+        <option value="oldest">最早</option>
+        <option value="top">仅看主评论</option>
+      </select>
+    </label>
   `;
-  commentsRoot.insertBefore(adminNode, statusNode);
-  const adminToggleButton = adminNode.querySelector(".comments-admin-toggle");
-  const adminPanel = adminNode.querySelector(".comments-admin-panel");
-  const adminTokenInput = adminNode.querySelector(".comments-admin-token");
-  const adminSaveButton = adminNode.querySelector(".comments-admin-save");
-  const adminClearButton = adminNode.querySelector(".comments-admin-clear");
+  commentsRoot.insertBefore(toolbar, statusNode);
+  const sortSelect = toolbar.querySelector("select");
+  if (sortSelect) {
+    sortSelect.value = currentSortMode;
+  }
 
-  const replyState = document.createElement("div");
-  replyState.className = "comments-reply-state";
-  replyState.hidden = true;
-  replyState.innerHTML = `
-    <span data-comments-reply-text></span>
-    <button type="button" class="comments-reply-cancel">取消回复</button>
-  `;
-  formNode.prepend(replyState);
-  const replyTextNode = replyState.querySelector("[data-comments-reply-text]");
-  const replyCancelButton = replyState.querySelector(".comments-reply-cancel");
+  let isAuthorViewer = false;
 
   const setStatus = (text) => {
     statusNode.textContent = text;
   };
 
-  const saveAdminToken = (nextToken) => {
-    adminToken = String(nextToken || "").trim();
-
-    if (adminToken) {
-      localStorage.setItem(commentsAdminStorageKey, adminToken);
-      setStatus("管理员模式已启用。");
-    } else {
-      localStorage.removeItem(commentsAdminStorageKey);
-      setStatus("管理员模式已关闭。");
-    }
-  };
-
-  adminToggleButton?.addEventListener("click", () => {
-    if (!adminPanel) {
-      return;
-    }
-
-    adminPanel.hidden = !adminPanel.hidden;
-    if (!adminPanel.hidden && adminTokenInput) {
-      adminTokenInput.value = adminToken;
-      adminTokenInput.focus();
-    }
-  });
-
-  adminSaveButton?.addEventListener("click", () => {
-    saveAdminToken(adminTokenInput?.value || "");
-    fetchComments();
-  });
-
-  adminClearButton?.addEventListener("click", () => {
-    saveAdminToken("");
-    if (adminTokenInput) {
-      adminTokenInput.value = "";
-    }
-    fetchComments();
-  });
-
-  const setReplyingTo = (comment) => {
-    replyingTo = comment || null;
-
-    if (!replyingTo) {
-      replyState.hidden = true;
-      if (replyTextNode) {
-        replyTextNode.textContent = "";
+  const readDraft = (key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        return { author: "", content: "" };
       }
-      return;
-    }
-
-    replyState.hidden = false;
-    if (replyTextNode) {
-      replyTextNode.textContent = `正在回复 @${replyingTo.author || "匿名"} (#${replyingTo.id})`;
+      const parsed = JSON.parse(raw);
+      return {
+        author: String(parsed?.author || ""),
+        content: String(parsed?.content || ""),
+      };
+    } catch {
+      return { author: "", content: "" };
     }
   };
 
-  if (replyCancelButton) {
-    replyCancelButton.addEventListener("click", () => {
-      setReplyingTo(null);
+  const saveDraft = (key, value) => {
+    const author = String(value?.author || "").trim();
+    const content = String(value?.content || "");
+
+    if (!author && !content.trim()) {
+      localStorage.removeItem(key);
+      return;
+    }
+
+    localStorage.setItem(key, JSON.stringify({ author, content }));
+  };
+
+  const topDraft = readDraft(mainDraftStorageKey);
+  if (mainAuthorInput && topDraft.author) {
+    mainAuthorInput.value = topDraft.author;
+  }
+  if (mainContentInput && topDraft.content) {
+    mainContentInput.value = topDraft.content;
+  }
+
+  if (mainAuthorInput) {
+    mainAuthorInput.addEventListener("input", () => {
+      saveDraft(mainDraftStorageKey, {
+        author: mainAuthorInput.value,
+        content: mainContentInput?.value || "",
+      });
     });
   }
 
-  const createCommentCard = (comment, options = {}) => {
+  if (mainContentInput) {
+    mainContentInput.addEventListener("input", () => {
+      saveDraft(mainDraftStorageKey, {
+        author: mainAuthorInput?.value || "",
+        content: mainContentInput.value,
+      });
+    });
+  }
+
+  const syncAuthorAuthUi = () => {};
+
+  const requestJson = async (path, options = {}) => {
+    const response = await fetch(buildCommentsApiUrl(path), {
+      credentials: "include",
+      ...options,
+    });
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const retryTip = payload.retryAfter ? ` 请 ${payload.retryAfter} 秒后再试。` : "";
+      throw new Error((payload.error || `Request failed: ${response.status}`) + retryTip);
+    }
+
+    return payload;
+  };
+
+  const stripAdminTokenFromUrl = () => {
+    const current = new URL(window.location.href);
+    let touched = false;
+
+    if (current.searchParams.has(adminTokenQueryKey)) {
+      current.searchParams.delete(adminTokenQueryKey);
+      touched = true;
+    }
+
+    if (current.hash.startsWith(`#${adminTokenQueryKey}=`)) {
+      current.hash = "";
+      touched = true;
+    }
+
+    if (touched) {
+      const clean = `${current.pathname}${current.search}${current.hash}`;
+      window.history.replaceState({}, "", clean || "/");
+    }
+  };
+
+  const readAdminTokenFromUrl = () => {
+    const current = new URL(window.location.href);
+    const fromQuery = current.searchParams.get(adminTokenQueryKey);
+
+    if (fromQuery) {
+      return fromQuery.trim();
+    }
+
+    if (current.hash.startsWith(`#${adminTokenQueryKey}=`)) {
+      return decodeURIComponent(current.hash.slice(adminTokenQueryKey.length + 2)).trim();
+    }
+
+    return "";
+  };
+
+  const tryAutoAdminLogin = async () => {
+    const token = readAdminTokenFromUrl();
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      await requestJson("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+      isAuthorViewer = true;
+      syncAuthorAuthUi();
+      setStatus("已识别为作者。");
+      return true;
+    } catch (error) {
+      setStatus(`作者识别失败：${error.message || "未知错误"}`);
+      console.error(error);
+      return false;
+    } finally {
+      stripAdminTokenFromUrl();
+    }
+  };
+
+  const closeInlineReply = () => {
+    if (activeReplyHost) {
+      activeReplyHost.classList.remove("is-replying");
+    }
+
+    if (activeReplyCommentBox) {
+      activeReplyCommentBox.remove();
+    }
+
+    activeReplyHost = null;
+    activeReplyCommentId = null;
+    activeReplyCommentBox = null;
+  };
+
+  const submitComment = async ({ author, content, parentId = null }) => {
+    const normalizedAuthor = String(author || "").trim();
+    const normalizedContent = String(content || "").trim();
+
+    if (!normalizedAuthor || !normalizedContent) {
+      throw new Error("昵称和评论内容不能为空。");
+    }
+
+    const payload = await requestJson("/api/comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        articleSlug,
+        author: normalizedAuthor,
+        content: normalizedContent,
+        parentId,
+      }),
+    });
+    return payload.comment;
+  };
+
+  const getCommentTimestamp = (comment) => {
+    const raw = String(comment?.createdAt || "");
+    if (!raw) {
+      return 0;
+    }
+
+    const normalized = raw.includes("T") ? raw : raw.replace(" ", "T");
+    const parsed = new Date(normalized);
+    if (Number.isNaN(parsed.getTime())) {
+      return 0;
+    }
+
+    return parsed.getTime();
+  };
+
+  const applySortMode = (commentsRaw) => {
+    const sorted = [...commentsRaw];
+
+    sorted.sort((left, right) => {
+      const leftTs = getCommentTimestamp(left);
+      const rightTs = getCommentTimestamp(right);
+
+      if (currentSortMode === "oldest") {
+        return leftTs - rightTs;
+      }
+
+      return rightTs - leftTs;
+    });
+
+    if (currentSortMode === "top") {
+      return sorted.filter((comment) => !comment.parentId);
+    }
+
+    return sorted;
+  };
+
+  const openInlineReply = (comment, hostNode, refreshComments) => {
+    if (activeReplyCommentId === comment.id && activeReplyCommentBox) {
+      closeInlineReply();
+      return;
+    }
+
+    closeInlineReply();
+    const replyForm = document.createElement("form");
+    replyForm.className = "comment-inline-reply";
+    replyForm.innerHTML = `
+      <div class="comment-inline-reply-head">回复 @${escapeHtml(comment.author || "匿名")}</div>
+      <div class="comment-inline-reply-fields">
+        <input type="text" name="reply-author" maxlength="40" placeholder="你的昵称" required>
+        <input type="text" name="reply-content" maxlength="1000" placeholder="写下你的回复..." required>
+      </div>
+      <div class="comment-inline-reply-actions">
+        <button type="submit" class="comment-inline-reply-submit">发送</button>
+        <button type="button" class="comment-inline-reply-cancel">取消</button>
+      </div>
+    `;
+
+    const replyAuthorInput = replyForm.querySelector("[name='reply-author']");
+    const replyContentInput = replyForm.querySelector("[name='reply-content']");
+    const replySubmitButton = replyForm.querySelector(".comment-inline-reply-submit");
+    const replyCancelButton = replyForm.querySelector(".comment-inline-reply-cancel");
+    const replyDraftKey = getReplyDraftKey(comment.id);
+    const replyDraft = readDraft(replyDraftKey);
+
+    if (replyAuthorInput) {
+      replyAuthorInput.value = replyDraft.author || mainAuthorInput?.value.trim() || "";
+    }
+    if (replyContentInput) {
+      replyContentInput.value = replyDraft.content || "";
+      replyContentInput.addEventListener("input", () => {
+        saveDraft(replyDraftKey, {
+          author: replyAuthorInput?.value || "",
+          content: replyContentInput.value,
+        });
+      });
+    }
+    if (replyAuthorInput) {
+      replyAuthorInput.addEventListener("input", () => {
+        saveDraft(replyDraftKey, {
+          author: replyAuthorInput.value,
+          content: replyContentInput?.value || "",
+        });
+      });
+    }
+
+    replyCancelButton?.addEventListener("click", () => {
+      closeInlineReply();
+    });
+
+    replyForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const replyAuthor = String(replyAuthorInput?.value || "").trim();
+      const replyContent = String(replyContentInput?.value || "").trim();
+
+      if (replySubmitButton) {
+        replySubmitButton.disabled = true;
+        replySubmitButton.textContent = "发送中...";
+      }
+
+      try {
+        await submitComment({
+          author: replyAuthor,
+          content: replyContent,
+          parentId: comment.id,
+        });
+        if (mainAuthorInput && replyAuthor) {
+          mainAuthorInput.value = replyAuthor;
+        }
+        saveDraft(mainDraftStorageKey, {
+          author: replyAuthor,
+          content: mainContentInput?.value || "",
+        });
+        localStorage.removeItem(replyDraftKey);
+        closeInlineReply();
+        setStatus("回复发布成功。");
+        await refreshComments();
+      } catch (error) {
+        setStatus(`回复发布失败：${error.message || "未知错误"}`);
+        console.error(error);
+      } finally {
+        if (replySubmitButton) {
+          replySubmitButton.disabled = false;
+          replySubmitButton.textContent = "发送";
+        }
+      }
+    });
+
+    hostNode.classList.add("is-replying");
+    hostNode.appendChild(replyForm);
+    activeReplyHost = hostNode;
+    activeReplyCommentId = comment.id;
+    activeReplyCommentBox = replyForm;
+    replyContentInput?.focus();
+  };
+
+  const createCommentCard = (comment, refreshComments, options = {}) => {
     const item = document.createElement("article");
-    item.className = options.reply ? "comment-item comment-item-reply" : "comment-item";
+    item.className = options.reply ? "comment-item comment-item-reply" : "comment-item comment-item-top";
     const allowReply = !options.reply;
-    const allowDelete = !!adminToken;
+    const likeCount = Number(comment.likeCount || 0);
+    const liked = Boolean(comment.liked);
 
     item.innerHTML = `
       <div class="comment-meta">
-        <strong>${escapeHtml(comment.author || "匿名")}</strong>
+        <div class="comment-author">
+          <strong>${escapeHtml(comment.author || "匿名")}</strong>
+          ${comment.isAuthor ? "<span class=\"comment-author-badge\">author</span>" : ""}
+        </div>
         <time>${escapeHtml(formatCommentDate(comment.createdAt))}</time>
       </div>
       <p>${escapeHtml(comment.content || "")}</p>
       <div class="comment-actions">
         ${allowReply ? "<button type=\"button\" class=\"comment-reply-btn\">回复</button>" : ""}
-        ${allowDelete ? "<button type=\"button\" class=\"comment-delete-btn\">删除</button>" : ""}
+        <button type="button" class="comment-like-btn${liked ? " is-liked" : ""}" aria-pressed="${liked ? "true" : "false"}">赞 <span>${likeCount}</span></button>
       </div>
     `;
 
+    const likeBtn = item.querySelector(".comment-like-btn");
+
+    const updateLikeButton = () => {
+      if (!likeBtn) {
+        return;
+      }
+
+      const likedNow = Boolean(comment.liked);
+      likeBtn.classList.toggle("is-liked", likedNow);
+      likeBtn.setAttribute("aria-pressed", likedNow ? "true" : "false");
+      const countNode = likeBtn.querySelector("span");
+      if (countNode) {
+        countNode.textContent = String(Number(comment.likeCount || 0));
+      }
+    };
+
+    likeBtn?.addEventListener("click", async (event) => {
+      event.stopPropagation();
+
+      if (likeBtn.dataset.pending === "true") {
+        return;
+      }
+
+      const shouldLike = likeBtn.getAttribute("aria-pressed") !== "true";
+      likeBtn.dataset.pending = "true";
+
+      try {
+        const payload = await requestJson(`/api/comments/${encodeURIComponent(String(comment.id))}/like`, {
+          method: shouldLike ? "POST" : "DELETE",
+        });
+
+        comment.liked = Boolean(payload.liked);
+        comment.likeCount = Number(payload.likeCount || 0);
+        updateLikeButton();
+      } catch (error) {
+        setStatus(`点赞失败：${error.message || "未知错误"}`);
+        console.error(error);
+      } finally {
+        likeBtn.dataset.pending = "false";
+      }
+    });
+
     if (allowReply) {
       const replyBtn = item.querySelector(".comment-reply-btn");
-      replyBtn?.addEventListener("click", () => {
-        setReplyingTo(comment);
-        formNode.querySelector("textarea[name='content']")?.focus();
+      replyBtn?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openInlineReply(comment, item, refreshComments);
       });
-    }
 
-    if (allowDelete) {
-      const deleteBtn = item.querySelector(".comment-delete-btn");
-      deleteBtn?.addEventListener("click", async () => {
-        const confirmed = window.confirm(`确认删除评论 #${comment.id} 吗？`);
-
-        if (!confirmed) {
+      item.addEventListener("click", (event) => {
+        if (event.target.closest("button, input, textarea, form, a, label")) {
           return;
         }
-
-        try {
-          const response = await fetch(buildCommentsApiUrl(`/api/comments/${encodeURIComponent(String(comment.id))}`), {
-            method: "DELETE",
-            headers: {
-              "X-Admin-Token": adminToken,
-            },
-          });
-          const payload = await response.json().catch(() => ({}));
-
-          if (!response.ok) {
-            throw new Error(payload.error || `Delete failed: ${response.status}`);
-          }
-
-          setStatus(`评论 #${comment.id} 已删除。`);
-          await fetchComments();
-        } catch (error) {
-          setStatus(`删除失败：${error.message || "未知错误"}`);
-          console.error(error);
-        }
+        openInlineReply(comment, item, refreshComments);
       });
     }
 
     return item;
   };
 
-  const renderComments = (comments) => {
-    countNode.textContent = comments.length.toString();
+  const renderComments = (commentsRaw, refreshComments) => {
+    commentsCache = [...commentsRaw];
+    countNode.textContent = commentsCache.length.toString();
+    closeInlineReply();
     listNode.innerHTML = "";
 
-    if (!comments.length) {
+    if (!commentsCache.length) {
       setStatus("还没有评论，来做第一个留言的人吧。");
       return;
     }
 
-    const topLevelComments = comments.filter((comment) => !comment.parentId);
+    const visibleComments = applySortMode(commentsCache);
+    const topLevelComments = visibleComments.filter((comment) => !comment.parentId);
     const repliesByParentId = new Map();
 
-    comments
-      .filter((comment) => comment.parentId)
-      .forEach((reply) => {
-        const parentReplies = repliesByParentId.get(reply.parentId) || [];
-        parentReplies.push(reply);
-        repliesByParentId.set(reply.parentId, parentReplies);
-      });
-
-    setStatus(`共 ${comments.length} 条评论（含回复）`);
+    if (currentSortMode !== "top") {
+      visibleComments
+        .filter((comment) => comment.parentId)
+        .forEach((reply) => {
+          const parentReplies = repliesByParentId.get(reply.parentId) || [];
+          parentReplies.push(reply);
+          repliesByParentId.set(reply.parentId, parentReplies);
+        });
+      setStatus(`共 ${commentsCache.length} 条评论（含回复）`);
+    } else {
+      setStatus(`显示 ${topLevelComments.length} 条主评论（共 ${commentsCache.length} 条）`);
+    }
 
     topLevelComments.forEach((comment) => {
-      const item = createCommentCard(comment);
+      const item = createCommentCard(comment, refreshComments);
       listNode.appendChild(item);
+
+      if (currentSortMode === "top") {
+        return;
+      }
 
       const replies = repliesByParentId.get(comment.id) || [];
 
@@ -1012,24 +1295,42 @@ const initComments = () => {
       const repliesNode = document.createElement("div");
       repliesNode.className = "comment-replies";
       replies.forEach((reply) => {
-        repliesNode.appendChild(createCommentCard(reply, { reply: true }));
+        repliesNode.appendChild(createCommentCard(reply, refreshComments, { reply: true }));
       });
       listNode.appendChild(repliesNode);
     });
+  };
+
+  sortSelect?.addEventListener("change", () => {
+    const nextMode = sortSelect.value;
+    if (!allowedSortModes.has(nextMode)) {
+      return;
+    }
+
+    currentSortMode = nextMode;
+    localStorage.setItem(sortStorageKey, currentSortMode);
+    renderComments(commentsCache, fetchComments);
+  });
+
+  const checkAuthorSession = async () => {
+    try {
+      const payload = await requestJson("/api/admin/session");
+      isAuthorViewer = Boolean(payload.authenticated);
+      syncAuthorAuthUi();
+    } catch {
+      isAuthorViewer = false;
+      syncAuthorAuthUi();
+    }
   };
 
   const fetchComments = async () => {
     setStatus("加载评论中...");
 
     try {
-      const response = await fetch(`${buildCommentsApiUrl("/api/comments")}?article=${encodeURIComponent(articleSlug)}`);
-
-      if (!response.ok) {
-        throw new Error(`Load comments failed: ${response.status}`);
-      }
-
-      const payload = await response.json();
-      renderComments(Array.isArray(payload.comments) ? payload.comments : []);
+      const payload = await requestJson(`/api/comments?article=${encodeURIComponent(articleSlug)}`);
+      isAuthorViewer = Boolean(payload.viewer?.isAuthor);
+      syncAuthorAuthUi();
+      renderComments(Array.isArray(payload.comments) ? payload.comments : [], fetchComments);
     } catch (error) {
       setStatus("评论加载失败，请稍后刷新重试。");
       console.error(error);
@@ -1043,39 +1344,26 @@ const initComments = () => {
     const author = String(formData.get("author") || "").trim();
     const content = String(formData.get("content") || "").trim();
 
-    if (!author || !content) {
-      setStatus("昵称和评论内容不能为空。");
-      return;
-    }
-
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = "提交中...";
     }
 
     try {
-      const response = await fetch(buildCommentsApiUrl("/api/comments"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          articleSlug,
-          author,
-          content,
-          parentId: replyingTo?.id ?? null,
-        }),
+      await submitComment({
+        author,
+        content,
+        parentId: null,
       });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        const retryTip = payload.retryAfter ? `请 ${payload.retryAfter} 秒后再试。` : "请稍后重试。";
-        throw new Error(payload.error ? `${payload.error} ${retryTip}` : retryTip);
+      if (mainContentInput) {
+        mainContentInput.value = "";
+      } else {
+        formNode.reset();
       }
-
-      formNode.reset();
-      setReplyingTo(null);
+      saveDraft(mainDraftStorageKey, {
+        author: mainAuthorInput?.value || author,
+        content: "",
+      });
       setStatus("评论发布成功。");
       await fetchComments();
     } catch (error) {
@@ -1089,7 +1377,16 @@ const initComments = () => {
     }
   });
 
-  fetchComments();
+  syncAuthorAuthUi();
+  checkAuthorSession()
+    .then(async () => {
+      if (!isAuthorViewer) {
+        await tryAutoAdminLogin();
+      }
+    })
+    .finally(() => {
+      fetchComments();
+    });
 };
 
 staggerTargets.forEach((node) => applyStaggerText(node));

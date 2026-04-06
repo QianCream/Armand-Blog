@@ -154,12 +154,30 @@
           <div class="articles-grid">
             <!-- ARTICLES:GENERATED:START -->
           <div class="articles-overview">
-            <a class="articles-archive-card panel reveal" href="articles/index.html">
+            <div class="articles-summary panel reveal">
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">entries</span>
+                <strong>4</strong>
+              </div>
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">latest</span>
+                <strong>2026-04-05</strong>
+              </div>
+              <div class="articles-summary-item">
+                <span class="articles-summary-label">reading</span>
+                <strong>103 min</strong>
+              </div>
+            </div>
+            <a class="articles-archive-card panel reveal reveal-delay" href="articles/index.html">
               <span class="articles-archive-path">/articles/</span>
               <strong>文章归档</strong>
-              <p>首页仅展示最新的三篇文章。</p>
+              <p>首页只保留最近 4 篇。以后文章再多，也都从这里进去。</p>
               <span class="articles-archive-meta">4 entries online</span>
             </a>
+          </div>
+          <div class="articles-home-note reveal">
+            <span class="panel-label">recent</span>
+            <p>首页展示最近 4 篇，完整列表进 archive。</p>
           </div>
             <a class="article-card article-card-featured reveal collapse-reveal" href="articles/rdp-cpp.html">
               <div class="panel-head">
@@ -169,14 +187,15 @@
               <span class="article-card-date">2026-04-05</span>
               <div class="article-card-stats">
                 <span>Markdown</span>
-                <span>20 min read</span>
+                <span>12 min read</span>
+                <span>14 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
                 <span class="article-card-command-text">open ./articles/rdp-cpp.md</span>
               </div>
               <h3>递归下降解析器浅论</h3>
-              <p>从上下文无关文法出发，把每条产生式翻译成一个 C++ 函数，处理优先级、左递归和错误恢复。</p>
+              <p>从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。</p>
             </a>
             <a class="article-card article-card-stack reveal collapse-reveal" href="articles/aethe-2-tutorial.html">
               <div class="panel-head">
@@ -187,6 +206,7 @@
               <div class="article-card-stats">
                 <span>Markdown</span>
                 <span>14 min read</span>
+                <span>74 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -204,6 +224,7 @@
               <div class="article-card-stats">
                 <span>Markdown</span>
                 <span>62 min read</span>
+                <span>188 sections</span>
               </div>
               <div class="article-card-command">
                 <span class="article-card-command-prompt">$</span>
@@ -211,6 +232,24 @@
               </div>
               <h3>Aethe 语言参考</h3>
               <p>面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。</p>
+            </a>
+            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/perlin-noise-intro.html">
+              <div class="panel-head">
+                <span class="article-meta">04</span>
+                <span class="panel-index">A4</span>
+              </div>
+              <span class="article-card-date">2026-03-29</span>
+              <div class="article-card-stats">
+                <span>Markdown</span>
+                <span>15 min read</span>
+                <span>39 sections</span>
+              </div>
+              <div class="article-card-command">
+                <span class="article-card-command-prompt">$</span>
+                <span class="article-card-command-text">open ./articles/perlin-noise-intro.md</span>
+              </div>
+              <h3>柏林噪声浅论</h3>
+              <p>从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。</p>
             </a>
           <div class="articles-footer-cta reveal">
             <a class="button button-secondary" href="articles/index.html">all 4 articles</a>
@@ -236,12 +275,63 @@
               <a class="github-profile-link" href="https://github.com/QianCream" target="_blank" rel="noreferrer">@QianCream</a>
               <div class="github-summary-chips">
                 <span>4 events</span>
-                <span>2 repos</span>
+                <span>1 repos</span>
                 <span>latest commit</span>
               </div>
             </div>
             <div class="github-list">
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/021fb17340aa15768d70acb767892ab079c886d4" target="_blank" rel="noreferrer" style="--github-index:0;">
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/263c78781e78ddd029dc9de0c628272291f28a42" target="_blank" rel="noreferrer" style="--github-index:0;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/06 11:43</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">263c787</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/00fb9b0d38915767eeb8430b53964ab677b35fd1" target="_blank" rel="noreferrer" style="--github-index:1;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/05 22:28</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">00fb9b0</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/cbb90331522770c326fef66d4403ca7eef22a992" target="_blank" rel="noreferrer" style="--github-index:2;">
+              <div class="github-item-rail">
+                <span class="github-item-dot" aria-hidden="true"></span>
+                <span class="github-item-time">04/05 11:42</span>
+              </div>
+              <div class="github-item-card">
+                <div class="github-item-meta">
+                  <span class="github-item-badge">commit</span>
+                  <span class="github-item-repo">QianCream/Armand-Blog</span>
+                  <span class="github-item-code">cbb9033</span>
+                </div>
+                <div class="github-item-copy">
+                  <h3>Push to Armand-Blog</h3>
+                  <p>最新提交已同步到 GitHub</p>
+                </div>
+              </div>
+            </a>
+            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/021fb17340aa15768d70acb767892ab079c886d4" target="_blank" rel="noreferrer" style="--github-index:3;">
               <div class="github-item-rail">
                 <span class="github-item-dot" aria-hidden="true"></span>
                 <span class="github-item-time">04/05 10:40</span>
@@ -254,57 +344,6 @@
                 </div>
                 <div class="github-item-copy">
                   <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/33639a642677a653e49634b061b20a47feab3c5b" target="_blank" rel="noreferrer" style="--github-index:1;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/05 10:36</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">33639a6</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/88e8d521b3a94f24b83193c540795a277f9655db" target="_blank" rel="noreferrer" style="--github-index:2;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/05 10:26</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">88e8d52</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Aethe/commit/bf5de607e02b1603c7c5597aef8006f38bd2318f" target="_blank" rel="noreferrer" style="--github-index:3;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/04 22:49</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Aethe</span>
-                  <span class="github-item-code">bf5de60</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Aethe</h3>
                   <p>最新提交已同步到 GitHub</p>
                 </div>
               </div>

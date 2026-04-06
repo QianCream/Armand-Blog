@@ -26,7 +26,9 @@ curl http://127.0.0.1:8787/api/health
 - `HOST`：默认 `0.0.0.0`
 - `COMMENTS_DB_PATH`：SQLite 路径，默认 `server/data/comments.db`
 - `CORS_ORIGINS`：允许跨域的站点，逗号分隔
-- `COMMENTS_ADMIN_TOKEN`：管理员删除评论使用的 token（可选）
+- `COMMENTS_ADMIN_TOKEN`：作者登录 token（可选）
+- `COMMENTS_SESSION_SECRET`：作者会话签名密钥（建议设置）
+- `COMMENTS_SESSION_MAX_AGE_DAYS`：作者会话有效天数，默认 `180`
 
 示例：
 
@@ -34,11 +36,12 @@ curl http://127.0.0.1:8787/api/health
 PORT=8787 HOST=0.0.0.0 CORS_ORIGINS=https://armand.dev npm run start:comments
 ```
 
-启用删除管理示例：
+启用作者会话示例：
 
 ```bash
-PORT=8787 HOST=0.0.0.0 CORS_ORIGINS=https://www.armand.top COMMENTS_ADMIN_TOKEN=your-secret-token npm run start:comments
+PORT=8787 HOST=0.0.0.0 CORS_ORIGINS=https://www.armand.top COMMENTS_ADMIN_TOKEN=your-token COMMENTS_SESSION_SECRET=your-secret npm run start:comments
 ```
+
 
 ## 3) 前端连接评论 API
 
@@ -72,7 +75,25 @@ location /api/ {
 
 - `GET /api/comments?article=<slug>`：获取某篇文章评论
 - `POST /api/comments`：提交评论
-- `DELETE /api/comments/:id`：删除评论（需要 `X-Admin-Token`）
+- `POST /api/comments/:id/like`：点赞某条评论
+- `DELETE /api/comments/:id/like`：取消点赞
+- `GET /api/admin/session`：查看当前浏览器是否已登录作者
+- `POST /api/admin/login`：作者登录（body 传 `token`）
+- `POST /api/admin/logout`：作者退出
+
+## 6) 无输入框自动识别作者（前端隐藏登录）
+
+前端不会显示“作者登录”输入框。你只需要在自己的浏览器做一次隐式登录：
+
+```text
+https://www.armand.top/articles/rdp-cpp.html#admin_token=你的COMMENTS_ADMIN_TOKEN
+```
+
+说明：
+- 页面会自动用 URL 中的 `admin_token` 调用 `/api/admin/login`
+- 登录成功后写入 HttpOnly cookie（默认 180 天）
+- URL 中的 `admin_token` 会立刻被前端清掉（`history.replaceState`）
+- 之后同一浏览器打开网站会自动识别作者，无需再输入
 
 请求体：
 
@@ -90,11 +111,23 @@ location /api/ {
 {
   "comment": {
     "id": 1,
+    "parentId": null,
+    "isAuthor": false,
     "author": "Armand",
     "content": "这篇写得很清楚",
-    "createdAt": "2026-04-05 13:00:00"
+    "createdAt": "2026-04-05 13:00:00",
+    "likeCount": 0,
+    "liked": false
   }
 }
+```
+
+作者登录示例：
+
+```bash
+curl -X POST https://api.armand.top/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"token":"your-token"}'
 ```
 
 回复评论（一级嵌套）示例：
@@ -108,9 +141,14 @@ location /api/ {
 }
 ```
 
-删除评论示例：
+点赞示例：
 
 ```bash
-curl -X DELETE https://api.armand.top/api/comments/1 \
-  -H "X-Admin-Token: your-secret-token"
+curl -X POST https://api.armand.top/api/comments/1/like
+```
+
+取消点赞示例：
+
+```bash
+curl -X DELETE https://api.armand.top/api/comments/1/like
 ```

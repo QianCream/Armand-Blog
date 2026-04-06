@@ -1832,50 +1832,32 @@ button {
   font-size: 0.92rem;
 }
 
-.comments-admin {
-  display: grid;
-  gap: 8px;
-}
-
-.comments-admin-toggle {
-  width: fit-content;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--chip-bg);
-  color: var(--accent);
-  padding: 4px 10px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.68rem;
-  cursor: pointer;
-}
-
-.comments-admin-panel {
+.comments-toolbar {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comments-sort {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
 }
 
-.comments-admin-token {
-  min-width: 220px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel);
-  color: var(--text);
-  padding: 8px 10px;
-  font-size: 0.84rem;
+.comments-sort span {
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
-.comments-admin-save,
-.comments-admin-clear {
+.comments-sort select {
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--chip-bg);
   color: var(--accent);
   padding: 4px 10px;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.68rem;
-  cursor: pointer;
+  font-size: 0.7rem;
 }
 
 .comments-list {
@@ -1897,6 +1879,12 @@ button {
   gap: 10px;
 }
 
+.comment-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .comment-meta strong,
 .comment-meta time {
   font-family: "IBM Plex Mono", monospace;
@@ -1909,6 +1897,20 @@ button {
 
 .comment-meta time {
   color: var(--muted);
+}
+
+.comment-author-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 7px;
+  border: 1px solid rgba(12, 166, 120, 0.24);
+  border-radius: 999px;
+  background: var(--signal-soft);
+  color: var(--signal);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
 }
 
 .comment-item p {
@@ -1924,20 +1926,6 @@ button {
   gap: 10px;
 }
 
-.comments-reply-state {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel-soft);
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.comments-reply-cancel,
 .comment-reply-btn {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1947,6 +1935,27 @@ button {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.68rem;
   cursor: pointer;
+}
+
+.comment-like-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--muted);
+  padding: 4px 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.comment-like-btn.is-liked {
+  border-color: rgba(12, 166, 120, 0.28);
+  background: var(--signal-soft);
+  color: var(--signal);
+}
+
+.comment-like-btn[data-pending="true"] {
+  opacity: 0.72;
 }
 
 .comment-actions {
@@ -1965,6 +1974,74 @@ button {
 
 .comment-item-reply {
   background: var(--panel);
+}
+
+.comment-item-top {
+  cursor: pointer;
+}
+
+.comment-item-top.is-replying {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.comment-inline-reply {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  display: grid;
+  gap: 8px;
+}
+
+.comment-inline-reply-head {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.comment-inline-reply-fields {
+  display: grid;
+  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.comment-inline-reply input {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.84rem;
+}
+
+.comment-inline-reply input:focus {
+  outline: none;
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.comment-inline-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.comment-inline-reply-submit,
+.comment-inline-reply-cancel {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  padding: 4px 10px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.comment-inline-reply-submit[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .comments-field {
@@ -2507,34 +2584,68 @@ button {
   background: rgba(11, 24, 40, 0.88);
 }
 
-[data-theme="dark"] .comments-admin-toggle,
-[data-theme="dark"] .comments-admin-save,
-[data-theme="dark"] .comments-admin-clear {
-  border-color: rgba(121, 169, 255, 0.16);
-  background: rgba(19, 37, 59, 0.86);
-  color: #8fb8ff;
-}
-
-[data-theme="dark"] .comments-admin-token {
-  border-color: rgba(121, 169, 255, 0.16);
-  background: rgba(11, 24, 40, 0.88);
-  color: #dbe7ff;
-}
-
 [data-theme="dark"] .comments-status,
 [data-theme="dark"] .comment-meta time,
 [data-theme="dark"] .comments-field span {
   color: #a6bad8;
 }
 
-[data-theme="dark"] .comments-reply-state {
+[data-theme="dark"] .comments-sort select {
   border-color: rgba(121, 169, 255, 0.16);
-  background: rgba(14, 31, 49, 0.76);
+  background: rgba(19, 37, 59, 0.86);
+  color: #8fb8ff;
+}
+
+[data-theme="dark"] .comments-sort span {
   color: #a6bad8;
 }
 
-[data-theme="dark"] .comments-reply-cancel,
 [data-theme="dark"] .comment-reply-btn {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(19, 37, 59, 0.86);
+  color: #8fb8ff;
+}
+
+[data-theme="dark"] .comment-like-btn {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(19, 37, 59, 0.86);
+  color: #a6bad8;
+}
+
+[data-theme="dark"] .comment-like-btn.is-liked {
+  border-color: rgba(86, 211, 162, 0.22);
+  background: rgba(86, 211, 162, 0.12);
+  color: #88e0ba;
+}
+
+[data-theme="dark"] .comment-author-badge {
+  border-color: rgba(86, 211, 162, 0.22);
+  background: rgba(86, 211, 162, 0.12);
+  color: #88e0ba;
+}
+
+[data-theme="dark"] .comment-item-top.is-replying {
+  border-color: rgba(121, 169, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(121, 169, 255, 0.16);
+}
+
+[data-theme="dark"] .comment-inline-reply {
+  border-color: rgba(121, 169, 255, 0.2);
+  background: rgba(11, 24, 40, 0.88);
+}
+
+[data-theme="dark"] .comment-inline-reply-head {
+  color: #a6bad8;
+}
+
+[data-theme="dark"] .comment-inline-reply input {
+  border-color: rgba(121, 169, 255, 0.16);
+  background: rgba(11, 24, 40, 0.88);
+  color: #dbe7ff;
+}
+
+[data-theme="dark"] .comment-inline-reply-submit,
+[data-theme="dark"] .comment-inline-reply-cancel {
   border-color: rgba(121, 169, 255, 0.16);
   background: rgba(19, 37, 59, 0.86);
   color: #8fb8ff;
@@ -3062,6 +3173,15 @@ button {
 
   .comments-section {
     padding: 16px;
+  }
+
+  .comments-toolbar {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .comment-inline-reply-fields {
+    grid-template-columns: 1fr;
   }
 
   .article-card,

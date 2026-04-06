@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>递归下降解析器浅论 | Armand's Blog</title>
   <meta name="description" content="从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。">
-  <meta name="keywords" content="Armand, 技术博客, C++, 编译器, 解析器, 递归下降, 语法分析, AST, CFG">
+  <meta name="keywords" content="Armand, 技术博客, C++, 图形, 语言设计, 编程语言, 递归下降解析器浅论">
   <meta name="author" content="Armand">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://armand.dev/articles/rdp-cpp.html">
-  <meta property="og:title" content="手写一个递归下降解析器 | Armand's Blog">
+  <meta property="og:title" content="递归下降解析器浅论 | Armand's Blog">
   <meta property="og:description" content="从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Armand's Blog">
@@ -46,7 +46,7 @@
   "image": "https://armand.dev/img/avatar.jpeg",
   "datePublished": "2026-04-05T00:00:00+08:00",
   "dateModified": "2026-04-05T00:00:00+08:00",
-  "timeRequired": "PT20M",
+  "timeRequired": "PT12M",
   "author": {
     "@type": "Person",
     "name": "Armand",
@@ -72,6 +72,7 @@
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
   <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+  
 </head>
 
 <body>
@@ -90,7 +91,7 @@
           <div class="article-meta-row">
             <span class="article-date" data-article-date>2026-04-05</span>
             <span class="article-format" data-article-format>Markdown</span>
-            <span class="article-reading-time">20 min read</span>
+            <span class="article-reading-time">12 min read</span>
           </div>
           <h1 class="article-title" data-article-title>递归下降解析器浅论</h1>
         </header>

@@ -97,7 +97,7 @@ def main():
 
     c = canvas.Canvas(str(output_path), pagesize=LETTER)
     c.setTitle("Armand's Blog - App Summary")
-    c.setAuthor("OpenAI Codex")
+    c.setAuthor("Armand")
     c.setSubject("One-page repo summary based on repo evidence")
 
     c.setFillColor(BG)

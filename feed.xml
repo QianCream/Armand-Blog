@@ -5,8 +5,15 @@
     <link>https://armand.dev/</link>
     <description>记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。</description>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 03 Apr 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 05 Apr 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://armand.dev/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>递归下降解析器浅论</title>
+      <link>https://armand.dev/articles/rdp-cpp.html</link>
+      <guid>https://armand.dev/articles/rdp-cpp.html</guid>
+      <pubDate>Sun, 05 Apr 2026 00:00:00 GMT</pubDate>
+      <description>从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。</description>
+    </item>
     <item>
       <title>Aethe 教程</title>
       <link>https://armand.dev/articles/aethe-2-tutorial.html</link>
