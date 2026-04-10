@@ -2,15 +2,17 @@ const { syncGeneratedArticles } = require("./article-tools");
 const { syncGithubFeed } = require("./github-tools");
 
 const main = async () => {
-  const articles = syncGeneratedArticles();
-  console.log(`Synced ${articles.length} article(s).`);
+  let githubFeed = { username: "QianCream", items: [] };
 
   try {
-    const githubItems = await syncGithubFeed("QianCream");
-    console.log(`Synced ${githubItems} GitHub contribution item(s).`);
+    githubFeed = await syncGithubFeed("QianCream");
+    console.log(`Synced ${githubFeed.items.length} GitHub contribution item(s).`);
   } catch (error) {
     console.warn(`GitHub sync skipped: ${error.message}`);
   }
+
+  const articles = syncGeneratedArticles({ githubFeed });
+  console.log(`Synced ${articles.length} article(s).`);
 };
 
 main().catch((error) => {

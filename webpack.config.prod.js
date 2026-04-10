@@ -8,12 +8,14 @@ module.exports = merge(common, {
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html',
+      inject: false,
     }),
     new CopyPlugin({
       patterns: [
         { from: 'articles', to: 'articles' },
         { from: 'img', to: 'img' },
         { from: 'css', to: 'css' },
+        { from: 'src', to: 'src' },
         { from: 'js/vendor', to: 'js/vendor' },
         { from: 'apple-touch-icon.png', to: 'apple-touch-icon.png' },
         { from: 'favicon.png', to: 'favicon.png' },

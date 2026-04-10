@@ -20,7 +20,9 @@
     "better-sqlite3": "^11.8.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "vue": "^3.5.32",
+    "vue3-sfc-loader": "^0.9.5"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",

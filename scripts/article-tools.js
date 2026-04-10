@@ -7,14 +7,20 @@ const INDEX_PATH = path.join(ROOT_DIR, "index.html");
 const ARCHIVE_INDEX_PATH = path.join(ARTICLES_DIR, "index.html");
 const SITEMAP_PATH = path.join(ROOT_DIR, "sitemap.xml");
 const FEED_PATH = path.join(ROOT_DIR, "feed.xml");
-const GENERATED_START = "<!-- ARTICLES:GENERATED:START -->";
-const GENERATED_END = "<!-- ARTICLES:GENERATED:END -->";
 const DEFAULT_AUTHOR = "Armand";
 const DEFAULT_AUTHOR_ROLE = "armand.dev";
 const DEFAULT_AVATAR = "../img/avatar.jpeg";
 const SITE_URL = "https://armand.dev";
 const COMMENTS_API_BASE = process.env.COMMENTS_API_BASE || "";
 const HOME_ARTICLE_LIMIT = 6;
+const VUE_IMPORT_MAP = `  <script type="importmap">
+{
+  "imports": {
+    "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.32/dist/vue.esm-browser.js",
+    "vue3-sfc-loader": "https://cdn.jsdelivr.net/npm/vue3-sfc-loader@0.9.5/dist/vue3-sfc-loader.esm.js"
+  }
+}
+  </script>`;
 const BASE_KEYWORDS = [
   "Armand",
   "技术博客",
@@ -262,6 +268,14 @@ const renderArchiveStructuredData = (articles) => escapeJsonForHtml({
   },
 });
 
+const createPageDataScript = (pageData) => `  <script id="page-data" type="application/json">
+${escapeJsonForHtml(pageData)}
+  </script>`;
+
+const renderAppScript = (src) => `  <script data-site-app type="module" src="${src}"></script>`;
+
+const renderAppMount = (pageType) => `  <div id="app" data-page="${pageType}"></div>`;
+
 const readMarkdownArticles = () => {
   const files = fs.readdirSync(ARTICLES_DIR)
     .filter((file) => file.endsWith(".md"))
@@ -298,168 +312,6 @@ const readMarkdownArticles = () => {
     .sort((left, right) => right.date.localeCompare(left.date) || left.slug.localeCompare(right.slug));
 };
 
-const renderArticlePage = (article) => `<!doctype html>
-<html lang="zh-CN">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(article.title)} | Armand's Blog</title>
-  <meta name="description" content="${escapeHtml(article.description)}">
-  <meta name="keywords" content="${escapeHtml(buildArticleKeywords(article))}">
-  <meta name="author" content="${escapeHtml(article.author)}">
-  <meta name="robots" content="index,follow">
-  <link rel="canonical" href="${SITE_URL}/articles/${escapeHtml(article.slug)}.html">
-  <meta property="og:title" content="${escapeHtml(article.title)} | Armand's Blog">
-  <meta property="og:description" content="${escapeHtml(article.description)}">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="Armand's Blog">
-  <meta property="og:url" content="${SITE_URL}/articles/${escapeHtml(article.slug)}.html">
-  <meta property="og:image" content="${escapeHtml(toAbsoluteAssetUrl(article.avatar))}">
-  <meta property="og:image:alt" content="${escapeHtml(article.author)} avatar">
-  ${article.date ? `<meta property="article:published_time" content="${toPublishedTime(article.date)}">` : ""}
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${escapeHtml(article.title)} | Armand's Blog">
-  <meta name="twitter:description" content="${escapeHtml(article.description)}">
-  <meta name="twitter:image" content="${escapeHtml(toAbsoluteAssetUrl(article.avatar))}">
-  <meta name="theme-color" content="#f0f2f5">
-  <link rel="alternate" type="application/rss+xml" title="Armand's Blog RSS Feed" href="${SITE_URL}/feed.xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="icon" href="../favicon.png" type="image/png" sizes="64x64">
-  <link rel="icon" href="../icon.png" type="image/png" sizes="192x192">
-  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
-  <link rel="manifest" href="../site.webmanifest">
-  <script type="application/ld+json">
-${renderArticleStructuredData(article)}
-  </script>
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]],
-        displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]],
-      },
-      svg: {
-        fontCache: "global",
-      },
-    };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
-  ${COMMENTS_API_BASE ? `<script>window.__COMMENTS_API_BASE__ = ${escapeInlineScriptValue(COMMENTS_API_BASE)};</script>` : ""}
-</head>
-
-<body>
-  <div class="page-shell">
-    <main class="article-page">
-      <div class="container article-shell">
-        <header class="article-top reveal">
-          <a class="article-back" href="./index.html">← archive</a>
-          <div class="article-author">
-            <img class="article-author-avatar" data-article-avatar src="${escapeHtml(article.avatar)}" alt="${escapeHtml(article.author)} avatar">
-            <div class="article-author-copy">
-              <strong data-article-author>${escapeHtml(article.author)}</strong>
-              <span data-article-author-role>${escapeHtml(article.authorRole)}</span>
-            </div>
-          </div>
-          <div class="article-meta-row">
-            <span class="article-date" data-article-date${article.date ? "" : " hidden"}>${escapeHtml(article.date)}</span>
-            <span class="article-format" data-article-format>${escapeHtml(article.format)}</span>
-            <span class="article-reading-time">${article.readMinutes} min read</span>
-          </div>
-          <h1 class="article-title" data-article-title>${escapeHtml(article.title)}</h1>
-        </header>
-        <article class="article-content reveal reveal-delay" data-markdown-source="./${escapeHtml(article.slug)}.md">
-          <p class="article-loading">Loading markdown...</p>
-        </article>
-        <section class="comments-section panel reveal collapse-reveal" data-comments-root data-article-slug="${escapeHtml(article.slug)}">
-          <div class="panel-head">
-            <span class="panel-label">comments</span>
-            <span class="panel-index" data-comments-count>0</span>
-          </div>
-          <p class="comments-status" data-comments-status>加载评论中...</p>
-          <div class="comments-list" data-comments-list></div>
-          <form class="comments-form" data-comments-form>
-            <label class="comments-field">
-              <span>昵称</span>
-              <input type="text" name="author" maxlength="40" required placeholder="你的名字">
-            </label>
-            <label class="comments-field">
-              <span>评论</span>
-              <textarea name="content" rows="4" maxlength="1000" required placeholder="写点什么..."></textarea>
-            </label>
-            <button class="button button-primary comments-submit" type="submit">发布评论</button>
-          </form>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <script defer src="../js/app.js"></script>
-</body>
-
-</html>
-`;
-
-const renderArticleSummary = (articles, homeArticles) => {
-  const latestDate = articles[0]?.date || "undated";
-  const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
-
-  return `          <div class="articles-overview">
-            <div class="articles-summary panel reveal">
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">entries</span>
-                <strong>${articles.length}</strong>
-              </div>
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">latest</span>
-                <strong>${escapeHtml(latestDate)}</strong>
-              </div>
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">reading</span>
-                <strong>${totalReadMinutes} min</strong>
-              </div>
-            </div>
-            <a class="articles-archive-card panel reveal reveal-delay" href="articles/index.html">
-              <span class="articles-archive-path">/articles/</span>
-              <strong>文章归档</strong>
-              <p>首页只保留最近 ${homeArticles.length} 篇。以后文章再多，也都从这里进去。</p>
-              <span class="articles-archive-meta">${articles.length} entries online</span>
-            </a>
-          </div>
-          <div class="articles-home-note reveal">
-            <span class="panel-label">recent</span>
-            <p>首页展示最近 ${homeArticles.length} 篇，完整列表进 archive。</p>
-          </div>`;
-};
-
-const renderArticleCard = (article, index) => `            <a class="article-card article-card-${index === 0 ? "featured" : "stack"} reveal collapse-reveal" href="articles/${escapeHtml(article.slug)}.html">
-              <div class="panel-head">
-                <span class="article-meta">${String(index + 1).padStart(2, "0")}</span>
-                <span class="panel-index">A${index + 1}</span>
-              </div>
-              <span class="article-card-date">${escapeHtml(article.date || "undated")}</span>
-              <div class="article-card-stats">
-                <span>${escapeHtml(article.format)}</span>
-                <span>${article.readMinutes} min read</span>
-                <span>${article.sectionCount} sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/${escapeHtml(article.slug)}.md</span>
-              </div>
-              <h3>${escapeHtml(article.title)}</h3>
-              <p>${escapeHtml(article.summary)}</p>
-            </a>`;
-
-const renderArticlesFooter = (articles) => `          <div class="articles-footer-cta reveal">
-            <a class="button button-secondary" href="articles/index.html">all ${articles.length} articles</a>
-          </div>`;
-
 const groupArticlesByYear = (articles) => {
   const groups = new Map();
 
@@ -476,10 +328,85 @@ const groupArticlesByYear = (articles) => {
   return Array.from(groups.entries()).map(([year, items]) => ({ year, items }));
 };
 
-const renderArchivePage = (articles) => {
-  const groupedArticles = groupArticlesByYear(articles);
+const renderHomePage = ({ articles, homeArticles, githubFeed }) => {
   const latestDate = articles[0]?.date || "undated";
   const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
+  const pageData = {
+    articles: homeArticles,
+    articleCount: articles.length,
+    latestDate,
+    totalReadMinutes,
+    github: {
+      username: githubFeed?.username || "QianCream",
+      items: Array.isArray(githubFeed?.items) ? githubFeed.items : [],
+    },
+  };
+
+  return `<!doctype html>
+<html class="no-js" lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Armand 的博客 | Aethe、F++、FreeWorld 与技术文章</title>
+  <meta name="description" content="Armand 的个人博客，记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta name="keywords" content="Armand, Aethe, F++, FreeWorld, 技术博客, C++, 图形, 语言设计, 编程语言">
+  <meta name="author" content="Armand">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="${SITE_URL}/">
+  <meta name="theme-color" content="#f0f2f5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+${VUE_IMPORT_MAP}
+  <meta property="og:title" content="Armand 的博客 | Aethe、F++、FreeWorld 与技术文章">
+  <meta property="og:description" content="记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta property="og:site_name" content="Armand's Blog">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${SITE_URL}/">
+  <meta property="og:image" content="${SITE_URL}/img/avatar.jpeg">
+  <meta property="og:image:alt" content="Armand avatar">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Armand 的博客 | Aethe、F++、FreeWorld 与技术文章">
+  <meta name="twitter:description" content="记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
+  <meta name="twitter:image" content="${SITE_URL}/img/avatar.jpeg">
+  <link rel="alternate" type="application/rss+xml" title="Armand's Blog RSS Feed" href="${SITE_URL}/feed.xml">
+  <script type="application/ld+json">
+${renderHomeStructuredData()}
+  </script>
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
+  <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+</head>
+
+<body>
+${renderAppMount("home")}
+${createPageDataScript(pageData)}
+${renderAppScript("js/app.js")}
+</body>
+
+</html>
+`;
+};
+
+const renderArchivePage = (articles) => {
+  const latestDate = articles[0]?.date || "undated";
+  const totalReadMinutes = articles.reduce((sum, article) => sum + article.readMinutes, 0);
+  const pageData = {
+    articles,
+    groupedArticles: groupArticlesByYear(articles),
+    latestDate,
+    totalReadMinutes,
+    author: {
+      name: DEFAULT_AUTHOR,
+      role: DEFAULT_AUTHOR_ROLE,
+      avatar: DEFAULT_AVATAR,
+    },
+  };
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -512,6 +439,7 @@ const renderArchivePage = (articles) => {
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+${VUE_IMPORT_MAP}
   <link rel="icon" href="../favicon.png" type="image/png" sizes="64x64">
   <link rel="icon" href="../icon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -522,69 +450,91 @@ ${renderArchiveStructuredData(articles)}
 </head>
 
 <body>
-  <div class="page-shell">
-    <main class="archive-page">
-      <div class="container archive-shell">
-        <header class="archive-top reveal">
-          <a class="article-back" href="../index.html#articles">← home</a>
-          <div class="article-author">
-            <img class="article-author-avatar" src="${escapeHtml(DEFAULT_AVATAR)}" alt="${escapeHtml(DEFAULT_AUTHOR)} avatar">
-            <div class="article-author-copy">
-              <strong>${escapeHtml(DEFAULT_AUTHOR)}</strong>
-              <span>${escapeHtml(DEFAULT_AUTHOR_ROLE)}</span>
-            </div>
-          </div>
-          <div class="archive-heading">
-            <p class="eyebrow">/articles/archive</p>
-            <h1 class="article-title">文章归档</h1>
-            <p class="archive-intro">首页只放最近的文章，这里保留全部内容。后面文章再多，也按年份继续往下长。</p>
-          </div>
-          <div class="archive-stats">
-            <span>${articles.length} entries</span>
-            <span>${escapeHtml(latestDate)} latest</span>
-            <span>${totalReadMinutes} min total</span>
-          </div>
-        </header>
+${renderAppMount("archive")}
+${createPageDataScript(pageData)}
+${renderAppScript("../js/app.js")}
+</body>
 
-        <div class="archive-layout">
-          <aside class="archive-nav panel reveal collapse-reveal">
-            <div class="panel-head">
-              <span class="panel-label">years</span>
-              <span class="panel-index">${groupedArticles.length}</span>
-            </div>
-            <div class="archive-nav-list">
-${groupedArticles.map(({ year, items }) => `              <a href="#year-${escapeHtml(year)}">${escapeHtml(year)} <span>${items.length}</span></a>`).join("\n")}
-            </div>
-          </aside>
+</html>
+`;
+};
 
-          <div class="archive-groups">
-${groupedArticles.map(({ year, items }) => `            <section class="archive-group panel reveal collapse-reveal" id="year-${escapeHtml(year)}">
-              <div class="panel-head">
-                <span class="panel-label">${escapeHtml(year)}</span>
-                <span class="panel-index">${items.length} entries</span>
-              </div>
-              <div class="archive-list">
-${items.map((article) => `                <a class="archive-item" href="./${escapeHtml(article.slug)}.html">
-                  <div class="archive-item-date">${escapeHtml(article.date || "undated")}</div>
-                  <div class="archive-item-body">
-                    <h2>${escapeHtml(article.title)}</h2>
-                    <p>${escapeHtml(article.summary)}</p>
-                    <div class="archive-item-meta">
-                      <span>${escapeHtml(article.format)}</span>
-                      <span>${article.readMinutes} min read</span>
-                      <span>${article.sectionCount} sections</span>
-                    </div>
-                  </div>
-                </a>`).join("\n")}
-              </div>
-            </section>`).join("\n")}
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+const renderArticlePage = (article) => {
+  const pageData = {
+    article: {
+      slug: article.slug,
+      title: article.title,
+      description: article.description,
+      date: article.date,
+      format: article.format,
+      readMinutes: article.readMinutes,
+      author: article.author,
+      authorRole: article.authorRole,
+      avatar: article.avatar,
+      markdownSource: `./${article.slug}.md`,
+    },
+  };
 
-  <script defer src="../js/app.js"></script>
+  return `<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(article.title)} | Armand's Blog</title>
+  <meta name="description" content="${escapeHtml(article.description)}">
+  <meta name="keywords" content="${escapeHtml(buildArticleKeywords(article))}">
+  <meta name="author" content="${escapeHtml(article.author)}">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="${SITE_URL}/articles/${escapeHtml(article.slug)}.html">
+  <meta property="og:title" content="${escapeHtml(article.title)} | Armand's Blog">
+  <meta property="og:description" content="${escapeHtml(article.description)}">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Armand's Blog">
+  <meta property="og:url" content="${SITE_URL}/articles/${escapeHtml(article.slug)}.html">
+  <meta property="og:image" content="${escapeHtml(toAbsoluteAssetUrl(article.avatar))}">
+  <meta property="og:image:alt" content="${escapeHtml(article.author)} avatar">
+  ${article.date ? `<meta property="article:published_time" content="${toPublishedTime(article.date)}">` : ""}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(article.title)} | Armand's Blog">
+  <meta name="twitter:description" content="${escapeHtml(article.description)}">
+  <meta name="twitter:image" content="${escapeHtml(toAbsoluteAssetUrl(article.avatar))}">
+  <meta name="theme-color" content="#f0f2f5">
+  <link rel="alternate" type="application/rss+xml" title="Armand's Blog RSS Feed" href="${SITE_URL}/feed.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+${VUE_IMPORT_MAP}
+  <link rel="icon" href="../favicon.png" type="image/png" sizes="64x64">
+  <link rel="icon" href="../icon.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <script type="application/ld+json">
+${renderArticleStructuredData(article)}
+  </script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\\\(", "\\\\)"]],
+        displayMath: [["$$", "$$"], ["\\\\[", "\\\\]"]],
+      },
+      svg: {
+        fontCache: "global",
+      },
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+  ${COMMENTS_API_BASE ? `<script>window.__COMMENTS_API_BASE__ = ${escapeInlineScriptValue(COMMENTS_API_BASE)};</script>` : ""}
+</head>
+
+<body>
+${renderAppMount("article")}
+${createPageDataScript(pageData)}
+${renderAppScript("../js/app.js")}
 </body>
 
 </html>
@@ -636,7 +586,8 @@ ${articles.map((article) => `    <item>
 `;
 };
 
-const syncGeneratedArticles = () => {
+const syncGeneratedArticles = (options = {}) => {
+  const githubFeed = options.githubFeed || { username: "QianCream", items: [] };
   const articles = readMarkdownArticles();
   const homeArticles = articles.slice(0, HOME_ARTICLE_LIMIT);
 
@@ -646,22 +597,7 @@ const syncGeneratedArticles = () => {
   });
 
   fs.writeFileSync(ARCHIVE_INDEX_PATH, renderArchivePage(articles), "utf8");
-
-  const indexHtml = fs.readFileSync(INDEX_PATH, "utf8");
-  const summaryHtml = renderArticleSummary(articles, homeArticles);
-  const generatedCards = homeArticles.map(renderArticleCard).join("\n");
-  const footerHtml = renderArticlesFooter(articles);
-
-  if (!indexHtml.includes(GENERATED_START) || !indexHtml.includes(GENERATED_END)) {
-    throw new Error("Missing article generation markers in index.html");
-  }
-
-  const updatedIndex = indexHtml.replace(
-    new RegExp(`${GENERATED_START}[\\s\\S]*?${GENERATED_END}`),
-    `${GENERATED_START}\n${summaryHtml}\n${generatedCards}\n${footerHtml}\n            ${GENERATED_END}`,
-  );
-
-  fs.writeFileSync(INDEX_PATH, updatedIndex, "utf8");
+  fs.writeFileSync(INDEX_PATH, renderHomePage({ articles, homeArticles, githubFeed }), "utf8");
   fs.writeFileSync(SITEMAP_PATH, renderSitemap(articles), "utf8");
   fs.writeFileSync(FEED_PATH, renderFeed(articles), "utf8");
 

@@ -1,11 +1,4 @@
-const fs = require("fs");
-const https = require("https");
-const path = require("path");
-
-const ROOT_DIR = path.resolve(__dirname, "..");
-const CACHE_PATH = path.join(ROOT_DIR, "tmp", "github-contributions-cache.json");
-
-const formatGithubDate = (value) => {
+export const formatGithubDate = (value) => {
   if (!value) {
     return "";
   }
@@ -18,11 +11,10 @@ const formatGithubDate = (value) => {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-    timeZone: "Asia/Shanghai",
   });
 };
 
-const summarizeGithubEvent = (event) => {
+export const summarizeGithubEvent = (event) => {
   const repo = event.repo?.name || "unknown/repo";
   const createdAt = formatGithubDate(event.created_at);
 
@@ -103,93 +95,17 @@ const summarizeGithubEvent = (event) => {
   return null;
 };
 
-const fetchPublicEvents = (username) => new Promise((resolve, reject) => {
-  const request = https.get(
-    `https://api.github.com/users/${encodeURIComponent(username)}/events/public?per_page=12`,
-    {
-      headers: {
-        "User-Agent": "Armand-Blog-Sync",
-        Accept: "application/vnd.github+json",
-      },
-    },
-    (response) => {
-      let body = "";
+export const loadGithubFeed = async (username, limit = 4) => {
+  const response = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/events/public?per_page=12`);
 
-      response.setEncoding("utf8");
-      response.on("data", (chunk) => {
-        body += chunk;
-      });
-      response.on("end", () => {
-        if (response.statusCode && response.statusCode >= 400) {
-          reject(new Error(`GitHub API responded with ${response.statusCode}`));
-          return;
-        }
-
-        try {
-          resolve(JSON.parse(body));
-        } catch (error) {
-          reject(error);
-        }
-      });
-    },
-  );
-
-  request.on("error", reject);
-  request.setTimeout(8000, () => {
-    request.destroy(new Error("GitHub request timed out"));
-  });
-});
-
-const readCache = () => {
-  if (!fs.existsSync(CACHE_PATH)) {
-    return null;
+  if (!response.ok) {
+    throw new Error(`Failed to load GitHub events: ${response.status}`);
   }
 
-  return JSON.parse(fs.readFileSync(CACHE_PATH, "utf8"));
-};
+  const events = await response.json();
 
-const writeCache = (username, items) => {
-  fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
-  fs.writeFileSync(CACHE_PATH, JSON.stringify({ username, items }, null, 2), "utf8");
-};
-
-const syncGithubFeed = async (username) => {
-  try {
-    const events = await fetchPublicEvents(username);
-    const items = events
-      .map(summarizeGithubEvent)
-      .filter(Boolean)
-      .slice(0, 4);
-
-    if (items.length) {
-      writeCache(username, items);
-      return { username, items };
-    }
-  } catch (error) {
-    const cached = readCache();
-
-    if (cached?.items?.length) {
-      return {
-        username: cached.username || username,
-        items: cached.items,
-      };
-    }
-
-    throw error;
-  }
-
-  const cached = readCache();
-
-  if (cached?.items?.length) {
-    return {
-      username: cached.username || username,
-      items: cached.items,
-    };
-  }
-
-  return { username, items: [] };
-};
-
-module.exports = {
-  syncGithubFeed,
+  return events
+    .map(summarizeGithubEvent)
+    .filter(Boolean)
+    .slice(0, limit);
 };

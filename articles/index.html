@@ -29,6 +29,14 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
+  <script type="importmap">
+{
+  "imports": {
+    "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.32/dist/vue.esm-browser.js",
+    "vue3-sfc-loader": "https://cdn.jsdelivr.net/npm/vue3-sfc-loader@0.9.5/dist/vue3-sfc-loader.esm.js"
+  }
+}
+  </script>
   <link rel="icon" href="../favicon.png" type="image/png" sizes="64x64">
   <link rel="icon" href="../icon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -75,105 +83,140 @@
 </head>
 
 <body>
-  <div class="page-shell">
-    <main class="archive-page">
-      <div class="container archive-shell">
-        <header class="archive-top reveal">
-          <a class="article-back" href="../index.html#articles">← home</a>
-          <div class="article-author">
-            <img class="article-author-avatar" src="../img/avatar.jpeg" alt="Armand avatar">
-            <div class="article-author-copy">
-              <strong>Armand</strong>
-              <span>armand.dev</span>
-            </div>
-          </div>
-          <div class="archive-heading">
-            <p class="eyebrow">/articles/archive</p>
-            <h1 class="article-title">文章归档</h1>
-            <p class="archive-intro">首页只放最近的文章，这里保留全部内容。后面文章再多，也按年份继续往下长。</p>
-          </div>
-          <div class="archive-stats">
-            <span>4 entries</span>
-            <span>2026-04-05 latest</span>
-            <span>103 min total</span>
-          </div>
-        </header>
-
-        <div class="archive-layout">
-          <aside class="archive-nav panel reveal collapse-reveal">
-            <div class="panel-head">
-              <span class="panel-label">years</span>
-              <span class="panel-index">1</span>
-            </div>
-            <div class="archive-nav-list">
-              <a href="#year-2026">2026 <span>4</span></a>
-            </div>
-          </aside>
-
-          <div class="archive-groups">
-            <section class="archive-group panel reveal collapse-reveal" id="year-2026">
-              <div class="panel-head">
-                <span class="panel-label">2026</span>
-                <span class="panel-index">4 entries</span>
-              </div>
-              <div class="archive-list">
-                <a class="archive-item" href="./rdp-cpp.html">
-                  <div class="archive-item-date">2026-04-05</div>
-                  <div class="archive-item-body">
-                    <h2>递归下降解析器浅论</h2>
-                    <p>从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。</p>
-                    <div class="archive-item-meta">
-                      <span>Markdown</span>
-                      <span>12 min read</span>
-                      <span>14 sections</span>
-                    </div>
-                  </div>
-                </a>
-                <a class="archive-item" href="./aethe-2-tutorial.html">
-                  <div class="archive-item-date">2026-04-03</div>
-                  <div class="archive-item-body">
-                    <h2>Aethe 教程</h2>
-                    <p>从第一个管道开始，快速理解 Aethe 3 的运行方式、变量规则和常用集合操作。</p>
-                    <div class="archive-item-meta">
-                      <span>Markdown</span>
-                      <span>14 min read</span>
-                      <span>74 sections</span>
-                    </div>
-                  </div>
-                </a>
-                <a class="archive-item" href="./aethe-2-reference.html">
-                  <div class="archive-item-date">2026-04-02</div>
-                  <div class="archive-item-body">
-                    <h2>Aethe 语言参考</h2>
-                    <p>面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。</p>
-                    <div class="archive-item-meta">
-                      <span>Markdown</span>
-                      <span>62 min read</span>
-                      <span>188 sections</span>
-                    </div>
-                  </div>
-                </a>
-                <a class="archive-item" href="./perlin-noise-intro.html">
-                  <div class="archive-item-date">2026-03-29</div>
-                  <div class="archive-item-body">
-                    <h2>柏林噪声浅论</h2>
-                    <p>从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。</p>
-                    <div class="archive-item-meta">
-                      <span>Markdown</span>
-                      <span>15 min read</span>
-                      <span>39 sections</span>
-                    </div>
-                  </div>
-                </a>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script defer src="../js/app.js"></script>
+  <div id="app" data-page="archive"></div>
+  <script id="page-data" type="application/json">
+{
+  "articles": [
+    {
+      "slug": "rdp-cpp",
+      "title": "递归下降解析器浅论",
+      "description": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+      "summary": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+      "date": "2026-04-05",
+      "format": "Markdown",
+      "readMinutes": 12,
+      "sectionCount": 14,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "aethe-2-tutorial",
+      "title": "Aethe 教程",
+      "description": "面向初学者梳理 Aethe 3 的基本读法、运行方式、变量、函数与集合式管道，适合作为入门路径。",
+      "summary": "从第一个管道开始，快速理解 Aethe 3 的运行方式、变量规则和常用集合操作。",
+      "date": "2026-04-03",
+      "format": "Markdown",
+      "readMinutes": 14,
+      "sectionCount": 74,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "aethe-2-reference",
+      "title": "Aethe 语言参考",
+      "description": "结合 Aethe 3 参考文档整理其实现范围、词法规则、管道语义、对象系统与内建能力，适合作为查询入口。",
+      "summary": "面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。",
+      "date": "2026-04-02",
+      "format": "Markdown",
+      "readMinutes": 62,
+      "sectionCount": 188,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "perlin-noise-intro",
+      "title": "柏林噪声浅论",
+      "description": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+      "summary": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+      "date": "2026-03-29",
+      "format": "Markdown",
+      "readMinutes": 15,
+      "sectionCount": 39,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    }
+  ],
+  "groupedArticles": [
+    {
+      "year": "2026",
+      "items": [
+        {
+          "slug": "rdp-cpp",
+          "title": "递归下降解析器浅论",
+          "description": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+          "summary": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+          "date": "2026-04-05",
+          "format": "Markdown",
+          "readMinutes": 12,
+          "sectionCount": 14,
+          "author": "Armand",
+          "authorRole": "armand.dev",
+          "avatar": "../img/avatar.jpeg",
+          "year": "2026"
+        },
+        {
+          "slug": "aethe-2-tutorial",
+          "title": "Aethe 教程",
+          "description": "面向初学者梳理 Aethe 3 的基本读法、运行方式、变量、函数与集合式管道，适合作为入门路径。",
+          "summary": "从第一个管道开始，快速理解 Aethe 3 的运行方式、变量规则和常用集合操作。",
+          "date": "2026-04-03",
+          "format": "Markdown",
+          "readMinutes": 14,
+          "sectionCount": 74,
+          "author": "Armand",
+          "authorRole": "armand.dev",
+          "avatar": "../img/avatar.jpeg",
+          "year": "2026"
+        },
+        {
+          "slug": "aethe-2-reference",
+          "title": "Aethe 语言参考",
+          "description": "结合 Aethe 3 参考文档整理其实现范围、词法规则、管道语义、对象系统与内建能力，适合作为查询入口。",
+          "summary": "面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。",
+          "date": "2026-04-02",
+          "format": "Markdown",
+          "readMinutes": 62,
+          "sectionCount": 188,
+          "author": "Armand",
+          "authorRole": "armand.dev",
+          "avatar": "../img/avatar.jpeg",
+          "year": "2026"
+        },
+        {
+          "slug": "perlin-noise-intro",
+          "title": "柏林噪声浅论",
+          "description": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+          "summary": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+          "date": "2026-03-29",
+          "format": "Markdown",
+          "readMinutes": 15,
+          "sectionCount": 39,
+          "author": "Armand",
+          "authorRole": "armand.dev",
+          "avatar": "../img/avatar.jpeg",
+          "year": "2026"
+        }
+      ]
+    }
+  ],
+  "latestDate": "2026-04-05",
+  "totalReadMinutes": 103,
+  "author": {
+    "name": "Armand",
+    "role": "armand.dev",
+    "avatar": "../img/avatar.jpeg"
+  }
+}
+  </script>
+  <script data-site-app type="module" src="../js/app.js"></script>
 </body>
 
 </html>

@@ -17,7 +17,14 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-
+  <script type="importmap">
+{
+  "imports": {
+    "vue": "https://cdn.jsdelivr.net/npm/vue@3.5.32/dist/vue.esm-browser.js",
+    "vue3-sfc-loader": "https://cdn.jsdelivr.net/npm/vue3-sfc-loader@0.9.5/dist/vue3-sfc-loader.esm.js"
+  }
+}
+  </script>
   <meta property="og:title" content="Armand 的博客 | Aethe、F++、FreeWorld 与技术文章">
   <meta property="og:description" content="记录 Aethe、F++、FreeWorld 等项目开发，以及 C++、图形、语言设计和技术文章。">
   <meta property="og:site_name" content="Armand's Blog">
@@ -57,7 +64,6 @@
   }
 ]
   </script>
-
   <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
   <link rel="icon" href="/icon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -65,437 +71,114 @@
 </head>
 
 <body>
-  <div class="page-shell">
-    <div class="grid-overlay" aria-hidden="true"></div>
-    <div class="scroll-progress" aria-hidden="true"></div>
-
-    <header class="site-header">
-      <div class="container nav">
-        <a class="brand" href="#top" aria-label="Armand 首页">
-          <img class="brand-mark" src="img/avatar.jpeg" alt="Armand icon">
-          <span class="brand-copy">armand.dev</span>
-        </a>
-
-        <nav class="nav-links" aria-label="主导航">
-          <a href="#top">home</a>
-          <a href="#articles">articles</a>
-          <a href="#intro">intro</a>
-          <a href="#works">works</a>
-        </nav>
-      </div>
-    </header>
-
-    <main id="top">
-      <section class="hero section">
-        <div class="container hero-grid">
-          <div class="hero-copy reveal">
-            <p class="eyebrow">你好，我是</p>
-            <h1>ARMAND</h1>
-            <p class="hero-text">初中生，在上海写代码和文章。</p>
-
-            <div class="hero-command-band" aria-label="当前状态">
-              <span class="hero-command-prompt">$</span>
-              <span class="hero-command-text">cat ./now.md</span>
-              <span class="hero-command-state">online</span>
-            </div>
-
-            <div class="hero-actions">
-              <a class="button button-primary" href="#articles">latest</a>
-              <a class="button button-secondary" href="articles/index.html">archive</a>
-            </div>
-
-            <div class="hero-terminal" aria-label="当前状态">
-              <div class="terminal-top">
-                <span class="terminal-dot" aria-hidden="true"></span>
-                <span>~/armand/blog</span>
-              </div>
-              <div class="terminal-body">
-                <p><span class="terminal-key">latest</span><span>写了篇递归下降解析器_</span></p>
-                <p><span class="terminal-key">reading</span><span>编译原理 / 图形学</span></p>
-                <p><span class="terminal-key">mood</span><span>curious, caffeinated_</span></p>
-              </div>
-            </div>
-          </div>
-
-          <aside class="hero-panel">
-            <article class="profile-card reveal reveal-delay collapse-reveal">
-              <div class="profile-frame">
-                <img class="profile-image" src="img/avatar.jpeg" alt="Armand avatar">
-              </div>
-              <div class="profile-meta">
-                <span class="eyebrow">ARMAND</span>
-                <h2>Armand</h2>
-                <p>上海 · 初中生</p>
-              </div>
-              <div class="profile-badges" aria-hidden="true">
-                <span>devlog</span>
-                <span>compiler</span>
-                <span>research</span>
-              </div>
-              <div class="profile-status">
-                <span class="profile-status-label">现在</span>
-                <strong>写文章，做语言，搞界面</strong>
-              </div>
-            </article>
-          </aside>
-        </div>
-      </section>
-
-      <section id="articles" class="section">
-        <div class="container">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">/articles</p>
-              <h2>文章</h2>
-              <p class="section-text">首页只看最近写的东西，完整归档单独放到文章页里。</p>
-            </div>
-          </div>
-
-          <div class="articles-grid">
-            <!-- ARTICLES:GENERATED:START -->
-          <div class="articles-overview">
-            <div class="articles-summary panel reveal">
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">entries</span>
-                <strong>4</strong>
-              </div>
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">latest</span>
-                <strong>2026-04-05</strong>
-              </div>
-              <div class="articles-summary-item">
-                <span class="articles-summary-label">reading</span>
-                <strong>103 min</strong>
-              </div>
-            </div>
-            <a class="articles-archive-card panel reveal reveal-delay" href="articles/index.html">
-              <span class="articles-archive-path">/articles/</span>
-              <strong>文章归档</strong>
-              <p>首页只保留最近 4 篇。以后文章再多，也都从这里进去。</p>
-              <span class="articles-archive-meta">4 entries online</span>
-            </a>
-          </div>
-          <div class="articles-home-note reveal">
-            <span class="panel-label">recent</span>
-            <p>首页展示最近 4 篇，完整列表进 archive。</p>
-          </div>
-            <a class="article-card article-card-featured reveal collapse-reveal" href="articles/rdp-cpp.html">
-              <div class="panel-head">
-                <span class="article-meta">01</span>
-                <span class="panel-index">A1</span>
-              </div>
-              <span class="article-card-date">2026-04-05</span>
-              <div class="article-card-stats">
-                <span>Markdown</span>
-                <span>12 min read</span>
-                <span>14 sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/rdp-cpp.md</span>
-              </div>
-              <h3>递归下降解析器浅论</h3>
-              <p>从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。</p>
-            </a>
-            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/aethe-2-tutorial.html">
-              <div class="panel-head">
-                <span class="article-meta">02</span>
-                <span class="panel-index">A2</span>
-              </div>
-              <span class="article-card-date">2026-04-03</span>
-              <div class="article-card-stats">
-                <span>Markdown</span>
-                <span>14 min read</span>
-                <span>74 sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/aethe-2-tutorial.md</span>
-              </div>
-              <h3>Aethe 教程</h3>
-              <p>从第一个管道开始，快速理解 Aethe 3 的运行方式、变量规则和常用集合操作。</p>
-            </a>
-            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/aethe-2-reference.html">
-              <div class="panel-head">
-                <span class="article-meta">03</span>
-                <span class="panel-index">A3</span>
-              </div>
-              <span class="article-card-date">2026-04-02</span>
-              <div class="article-card-stats">
-                <span>Markdown</span>
-                <span>62 min read</span>
-                <span>188 sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/aethe-2-reference.md</span>
-              </div>
-              <h3>Aethe 语言参考</h3>
-              <p>面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。</p>
-            </a>
-            <a class="article-card article-card-stack reveal collapse-reveal" href="articles/perlin-noise-intro.html">
-              <div class="panel-head">
-                <span class="article-meta">04</span>
-                <span class="panel-index">A4</span>
-              </div>
-              <span class="article-card-date">2026-03-29</span>
-              <div class="article-card-stats">
-                <span>Markdown</span>
-                <span>15 min read</span>
-                <span>39 sections</span>
-              </div>
-              <div class="article-card-command">
-                <span class="article-card-command-prompt">$</span>
-                <span class="article-card-command-text">open ./articles/perlin-noise-intro.md</span>
-              </div>
-              <h3>柏林噪声浅论</h3>
-              <p>从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。</p>
-            </a>
-          <div class="articles-footer-cta reveal">
-            <a class="button button-secondary" href="articles/index.html">all 4 articles</a>
-          </div>
-            <!-- ARTICLES:GENERATED:END -->
-          </div>
-        </div>
-      </section>
-
-      <section id="github" class="section">
-        <div class="container">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">/github</p>
-              <h2>最近在做什么</h2>
-              <p class="section-text">直接拉 GitHub 的公开动态，算是一种"实时更新"。</p>
-            </div>
-          </div>
-
-          <div class="github-feed panel reveal collapse-reveal" data-github-feed data-github-user="QianCream">
-            <!-- GITHUB:GENERATED:START -->
-            <div class="github-feed-head">
-              <a class="github-profile-link" href="https://github.com/QianCream" target="_blank" rel="noreferrer">@QianCream</a>
-              <div class="github-summary-chips">
-                <span>4 events</span>
-                <span>1 repos</span>
-                <span>latest commit</span>
-              </div>
-            </div>
-            <div class="github-list">
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/97369589b3c2ecdc4cff48fee47ef07485dd2167" target="_blank" rel="noreferrer" style="--github-index:0;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/06 16:52</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">9736958</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/263c78781e78ddd029dc9de0c628272291f28a42" target="_blank" rel="noreferrer" style="--github-index:1;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/06 11:43</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">263c787</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/00fb9b0d38915767eeb8430b53964ab677b35fd1" target="_blank" rel="noreferrer" style="--github-index:2;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/05 22:28</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">00fb9b0</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            <a class="github-item" href="https://github.com/QianCream/Armand-Blog/commit/cbb90331522770c326fef66d4403ca7eef22a992" target="_blank" rel="noreferrer" style="--github-index:3;">
-              <div class="github-item-rail">
-                <span class="github-item-dot" aria-hidden="true"></span>
-                <span class="github-item-time">04/05 11:42</span>
-              </div>
-              <div class="github-item-card">
-                <div class="github-item-meta">
-                  <span class="github-item-badge">commit</span>
-                  <span class="github-item-repo">QianCream/Armand-Blog</span>
-                  <span class="github-item-code">cbb9033</span>
-                </div>
-                <div class="github-item-copy">
-                  <h3>Push to Armand-Blog</h3>
-                  <p>最新提交已同步到 GitHub</p>
-                </div>
-              </div>
-            </a>
-            </div>
-          <!-- GITHUB:GENERATED:END -->
-          </div>
-        </div>
-      </section>
-
-      <section id="intro" class="section">
-        <div class="container">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">/intro</p>
-              <h2>关于我</h2>
-              <p class="section-text">初中生，在上海。这里是我的想法和记录。</p>
-            </div>
-          </div>
-
-          <div class="intro-grid">
-            <article class="panel intro-panel reveal collapse-reveal">
-              <div class="panel-head">
-                <span class="panel-label">about</span>
-                <span class="panel-index">01</span>
-              </div>
-              <div class="intro-command">
-                <span class="intro-command-prompt">$</span>
-                <span class="intro-command-text">whoami</span>
-              </div>
-              <p class="intro-lead">初三，上海。</p>
-              <p class="intro-note">喜欢用 C++ 自己搭语言——从词法到运行时都不想借库。这个博客是记录学习过程的地方，也是整理思路的草稿本。写给未来的自己，也分享给感兴趣的人。</p>
-              <div class="intro-flags" aria-hidden="true">
-                <span>parser</span>
-                <span>tooling</span>
-                <span>ui</span>
-              </div>
-            </article>
-
-            <div class="intro-stack reveal reveal-delay collapse-reveal">
-              <article class="stack-item">
-                <span class="stack-key">在用</span>
-                <strong>C++ / Pygame / Web</strong>
-              </article>
-              <article class="stack-item">
-                <span class="stack-key">感兴趣</span>
-                <strong>界面设计 / 交互 / 视觉</strong>
-              </article>
-              <article class="stack-item">
-                <span class="stack-key">在做</span>
-                <strong>Aethe 稳定推进中，偶尔写小项目</strong>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="works" class="section section-last">
-        <div class="container">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">/works</p>
-              <h2>作品</h2>
-              <p class="section-text">每个项目都从一个"不知道能不能做出来"开始。</p>
-            </div>
-          </div>
-
-          <div class="works-grid">
-            <a class="work-card reveal collapse-reveal" href="https://github.com/QianCream/Aethe" target="_blank" rel="noreferrer">
-              <div class="work-cover">
-                <img src="img/work-aethe.jpg" alt="Aethe cover">
-              </div>
-              <div class="work-copy">
-                <div class="panel-head">
-                  <span class="work-meta">01</span>
-                  <span class="panel-index">W1</span>
-                </div>
-                <div class="work-card-command">
-                  <span class="work-card-command-prompt">$</span>
-                  <span class="work-card-command-text">git clone QianCream/Aethe</span>
-                </div>
-                <h3>Aethe</h3>
-                <p>一门还在持续推进中的语言实验，重点放在管道式表达和可读的程序结构。</p>
-                <div class="work-card-tags" aria-hidden="true">
-                  <span>compiler</span>
-                  <span>language</span>
-                </div>
-              </div>
-            </a>
-
-            <a class="work-card reveal reveal-delay collapse-reveal" href="https://github.com/QianCream/Fpp" target="_blank" rel="noreferrer">
-              <div class="work-cover">
-                <img src="img/work-fpp.png" alt="F++ cover">
-              </div>
-              <div class="work-copy">
-                <div class="panel-head">
-                  <span class="work-meta">02</span>
-                  <span class="panel-index">W2</span>
-                </div>
-                <div class="work-card-command">
-                  <span class="work-card-command-prompt">$</span>
-                  <span class="work-card-command-text">git clone QianCream/Fpp</span>
-                </div>
-                <h3>F++</h3>
-                <p>围绕语言与实现继续试错的项目分支，偏向更直接的表达和实验性结构。</p>
-                <div class="work-card-tags" aria-hidden="true">
-                  <span>syntax</span>
-                  <span>experiment</span>
-                </div>
-              </div>
-            </a>
-
-            <a class="work-card reveal reveal-delay-2 collapse-reveal" href="https://github.com/QianCream/FreeWorld" target="_blank" rel="noreferrer">
-              <div class="work-cover">
-                <img src="img/work-freeworld.jpg" alt="FreeWorld cover">
-              </div>
-              <div class="work-copy">
-                <div class="panel-head">
-                  <span class="work-meta">03</span>
-                  <span class="panel-index">W3</span>
-                </div>
-                <div class="work-card-command">
-                  <span class="work-card-command-prompt">$</span>
-                  <span class="work-card-command-text">git clone QianCream/FreeWorld</span>
-                </div>
-                <h3>FreeWorld</h3>
-                <p>更偏小型项目和世界观式构想的集合，记录实现过程里的视觉和玩法尝试。</p>
-                <div class="work-card-tags" aria-hidden="true">
-                  <span>gameplay</span>
-                  <span>world</span>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="container footer-row">
-        <p>© <span id="year"></span> armand.dev</p>
-        <div class="footer-links">
-          <a href="articles/index.html">archive</a>
-          <a href="feed.xml">feed.xml</a>
-          <a href="sitemap.xml">sitemap.xml</a>
-          <a href="https://github.com/QianCream" target="_blank" rel="noreferrer">github</a>
-        </div>
-      </div>
-    </footer>
-  </div>
-
-  <script src="js/app.js"></script>
+  <div id="app" data-page="home"></div>
+  <script id="page-data" type="application/json">
+{
+  "articles": [
+    {
+      "slug": "rdp-cpp",
+      "title": "递归下降解析器浅论",
+      "description": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+      "summary": "从上下文无关文法出发，用 C++ 手写一个能处理表达式、函数调用和错误恢复的递归下降解析器。",
+      "date": "2026-04-05",
+      "format": "Markdown",
+      "readMinutes": 12,
+      "sectionCount": 14,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "aethe-2-tutorial",
+      "title": "Aethe 教程",
+      "description": "面向初学者梳理 Aethe 3 的基本读法、运行方式、变量、函数与集合式管道，适合作为入门路径。",
+      "summary": "从第一个管道开始，快速理解 Aethe 3 的运行方式、变量规则和常用集合操作。",
+      "date": "2026-04-03",
+      "format": "Markdown",
+      "readMinutes": 14,
+      "sectionCount": 74,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "aethe-2-reference",
+      "title": "Aethe 语言参考",
+      "description": "结合 Aethe 3 参考文档整理其实现范围、词法规则、管道语义、对象系统与内建能力，适合作为查询入口。",
+      "summary": "面向查询场景梳理 Aethe 3 的核心语法、管道机制、可调用对象和常用内建能力。",
+      "date": "2026-04-02",
+      "format": "Markdown",
+      "readMinutes": 62,
+      "sectionCount": 188,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    },
+    {
+      "slug": "perlin-noise-intro",
+      "title": "柏林噪声浅论",
+      "description": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+      "summary": "从基本原理到二维实现，浅谈 Perlin Noise 在地形生成中的作用。",
+      "date": "2026-03-29",
+      "format": "Markdown",
+      "readMinutes": 15,
+      "sectionCount": 39,
+      "author": "Armand",
+      "authorRole": "armand.dev",
+      "avatar": "../img/avatar.jpeg",
+      "year": "2026"
+    }
+  ],
+  "articleCount": 4,
+  "latestDate": "2026-04-05",
+  "totalReadMinutes": 103,
+  "github": {
+    "username": "QianCream",
+    "items": [
+      {
+        "badge": "commit",
+        "repo": "QianCream/Armand-Blog",
+        "time": "04/06 17:10",
+        "title": "Push to Armand-Blog",
+        "detail": "最新提交已同步到 GitHub",
+        "code": "285317f",
+        "url": "https://github.com/QianCream/Armand-Blog/commit/285317f936e66916c867e207a195f5c0621b25dd"
+      },
+      {
+        "badge": "commit",
+        "repo": "QianCream/Armand-Blog",
+        "time": "04/06 16:52",
+        "title": "Push to Armand-Blog",
+        "detail": "最新提交已同步到 GitHub",
+        "code": "9736958",
+        "url": "https://github.com/QianCream/Armand-Blog/commit/97369589b3c2ecdc4cff48fee47ef07485dd2167"
+      },
+      {
+        "badge": "commit",
+        "repo": "QianCream/Armand-Blog",
+        "time": "04/06 11:43",
+        "title": "Push to Armand-Blog",
+        "detail": "最新提交已同步到 GitHub",
+        "code": "263c787",
+        "url": "https://github.com/QianCream/Armand-Blog/commit/263c78781e78ddd029dc9de0c628272291f28a42"
+      },
+      {
+        "badge": "commit",
+        "repo": "QianCream/Armand-Blog",
+        "time": "04/05 22:28",
+        "title": "Push to Armand-Blog",
+        "detail": "最新提交已同步到 GitHub",
+        "code": "00fb9b0",
+        "url": "https://github.com/QianCream/Armand-Blog/commit/00fb9b0d38915767eeb8430b53964ab677b35fd1"
+      }
+    ]
+  }
+}
+  </script>
+  <script data-site-app type="module" src="js/app.js"></script>
 </body>
 
 </html>
